@@ -1,0 +1,252 @@
+package me.eighttenlabs.steazy;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import com.spotify.sdk.android.Spotify;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.authentication.SpotifyAuthentication;
+import com.spotify.sdk.android.playback.Config;
+
+import java.util.ArrayList;
+
+
+public class MainActivity extends ActionBarActivity {
+
+    private static final String CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
+    private static final String REDIRECT_URI = "spotify-sub://callback";
+    ArrayList<SpotifyWebObject> webObjects;
+    private MusicController controller;
+    private ArrayList<SpotifyWebObject> savedSearch;
+
+    private ImageButton skipButton;
+    private ImageButton previousButton;
+    private ImageButton playPauseButton;
+    private TextView songName;
+    private TextView songArtist;
+    private SeekBar seekBar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        SpotifyAuthentication.openAuthWindow(CLIENT_ID, "token", REDIRECT_URI, new String[]{"user-read-private", "streaming"}, null, this);
+
+        webObjects = new ArrayList<>();
+
+        try {
+            webObjects = (new SpotifySearch().execute("").get());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        setSongList();
+
+        skipButton = (ImageButton) findViewById(R.id.next_button);
+        previousButton = (ImageButton) findViewById(R.id.previous_button);
+        playPauseButton = (ImageButton) findViewById(R.id.play_pause_button);
+        songName = (TextView) findViewById(R.id.song_title);
+        songArtist = (TextView) findViewById(R.id.song_artist);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+
+        playPauseButton.setImageResource(R.drawable.ic_action_play);
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (controller.isPlaying()) {
+                    controller.pause();
+                }
+                if (!controller.isPlaying()) {
+                    controller.start();
+                }
+            }
+        });
+
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controller.next();
+            }
+        });
+
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controller.previous();
+            }
+        });
+    }
+
+    public void songPicked(View view) {
+        SpotifyWebObject object = webObjects.get(Integer.parseInt(view.getTag().toString()));
+        Log.d("Popularity", String.valueOf(object.getPopularity()));
+
+        if (object instanceof Song) {
+            controller.play((Song) object);
+        } else if (object instanceof Artist) {
+            try {
+                webObjects = (new SpotifySearch.ArtistSongs().execute(object.getTag()).get());
+                setSongList();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void setSongList() {
+        ListView songList = (ListView) findViewById(R.id.songs);
+        songList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                songPicked(view);
+            }
+        });
+        SongAdapter adapter = new SongAdapter(getApplicationContext(), webObjects);
+        songList.setAdapter(adapter);
+        registerForContextMenu(songList);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Uri uri = intent.getData();
+        if (uri != null) {
+            AuthenticationResponse authenticationResponse = SpotifyAuthentication.parseOauthResponse(uri);
+            Config config = new Config(this, authenticationResponse.getAccessToken(), CLIENT_ID);
+            Spotify spotify = new Spotify();
+            controller = new MusicController(this);
+            controller.setPlayer(spotify.getPlayer(config, controller, controller));
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        controller.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            case R.id.action_search_songs:
+                if (android.os.Build.VERSION.SDK_INT < 11) {
+                    supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+                }
+                if (getSupportActionBar().getCustomView() != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getSupportActionBar().getCustomView().findViewById(R.id.search_box).getWindowToken(), 0);
+                    getSupportActionBar().setCustomView(null);
+                    getSupportActionBar().setDisplayShowCustomEnabled(false);
+                } else {
+                    getSupportActionBar().setDisplayShowCustomEnabled(true);
+                    getSupportActionBar().setCustomView(R.layout.action_bar_search);
+                    final EditText box = ((EditText) getSupportActionBar().getCustomView().findViewById(R.id.search_box));
+                    box.requestFocus();
+                    box.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(box, 0);
+                    box.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                                try {
+                                    webObjects = new SpotifySearch().execute(box.getText().toString()).get();
+                                    setSongList();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    });
+                }
+                break;
+            case R.id.action_show_queue:
+                if (savedSearch == null) {
+                    savedSearch = webObjects;
+                    webObjects = controller.getQueue();
+                } else {
+                    webObjects = savedSearch;
+                    savedSearch = null;
+                }
+                setSongList();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu_main, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        SpotifyWebObject object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        if (!(object instanceof Song)) {
+            return true;
+        }
+        switch (item.getItemId()) {
+            case R.id.play_song:
+                controller.play((Song) object);
+                return true;
+            case R.id.queue_song:
+                controller.queue((Song) object);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    public SeekBar getSeekBar() {
+        return seekBar;
+    }
+
+    public ImageButton getPlayPauseButton() {
+        return playPauseButton;
+    }
+
+    public TextView getSongName() {
+        return songName;
+    }
+
+    public TextView getSongArtist() {
+        return songArtist;
+    }
+}
