@@ -26,8 +26,6 @@ var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
 
-
-
 </script>
 <noscript>
     <div>JavaScript is disabled on your browser.</div>
@@ -81,8 +79,6 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 
-
-
         </script>
     </div>
     <div>
@@ -111,233 +107,233 @@ var activeTableTab = "activeTableTab";
         ConnectionStateCallback</h2>
 </div>
 <div class="contentContainer">
-<div class="description">
-    <ul class="blockList">
-        <li class="blockList">
-            <dl>
-                <dt>All Known Implementing Classes:</dt>
-                <dd><a href="../../../../../com/spotify/sdk/android/playback/Player.html"
-                       title="class in com.spotify.sdk.android.playback">Player</a></dd>
-            </dl>
-            <hr>
-            <br>
+    <div class="description">
+        <ul class="blockList">
+            <li class="blockList">
+                <dl>
+                    <dt>All Known Implementing Classes:</dt>
+                    <dd><a href="../../../../../com/spotify/sdk/android/playback/Player.html"
+                           title="class in com.spotify.sdk.android.playback">Player</a></dd>
+                </dl>
+                <hr>
+                <br>
                 <pre>public interface <span
                         class="typeNameLabel">ConnectionStateCallback</span></pre>
-            <div class="block">Callback used to deliver information about connection state
-                events.
-            </div>
-        </li>
-    </ul>
-</div>
-<div class="summary">
-    <ul class="blockList">
-        <li class="blockList">
-            <!-- ========== METHOD SUMMARY =========== -->
-            <ul class="blockList">
-                <li class="blockList"><a name="method.summary">
-                    <!--   -->
-                </a>
-
-                    <h3>Method Summary</h3>
-                    <table class="memberSummary" border="0" cellpadding="3" cellspacing="0"
-                           summary="Method Summary table, listing methods, and an explanation">
-                        <caption><span id="t0"
-                                       class="activeTableTab"><span>All Methods</span><span
-                                class="tabEnd">&nbsp;</span></span><span id="t2"
-                                                                         class="tableTab"><span><a
-                                href="javascript:show(2);">Instance Methods</a></span><span
-                                class="tabEnd">&nbsp;</span></span><span id="t3"
-                                                                         class="tableTab"><span><a
-                                href="javascript:show(4);">Abstract Methods</a></span><span
-                                class="tabEnd">&nbsp;</span></span></caption>
-                        <tr>
-                            <th class="colFirst" scope="col">Modifier and Type</th>
-                            <th class="colLast" scope="col">Method and Description</th>
-                        </tr>
-                        <tr id="i0" class="altColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onConnectionMessage-java.lang.String-">onConnectionMessage</a></span>(<a
-                                    href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-                                    title="class or interface in java.lang">String</a>&nbsp;message)</code>
-
-                                <div class="block">Connection message sent from the server to
-                                    the user.
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="i1" class="rowColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoggedIn--">onLoggedIn</a></span>()</code>
-
-                                <div class="block">Sent when the user has successfully logged
-                                    in
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="i2" class="altColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoggedOut--">onLoggedOut</a></span>()</code>
-
-                                <div class="block">Sent when the user has finished logging out
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="i3" class="rowColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoginFailed-java.lang.Throwable-">onLoginFailed</a></span>(<a
-                                    href="http://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true"
-                                    title="class or interface in java.lang">Throwable</a>&nbsp;error)</code>
-
-                                <div class="block">Sent when login attempt fails.</div>
-                            </td>
-                        </tr>
-                        <tr id="i4" class="altColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onNewCredentials-java.lang.String-">onNewCredentials</a></span>(<a
-                                    href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-                                    title="class or interface in java.lang">String</a>&nbsp;credentialsBlob)</code>
-
-                                <div class="block">May also be sent when the user finishes
-                                    logging in.
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="i5" class="rowColor">
-                            <td class="colFirst"><code>void</code></td>
-                            <td class="colLast"><code><span class="memberNameLink"><a
-                                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onTemporaryError--">onTemporaryError</a></span>()</code>
-
-                                <div class="block">Sent when service has been interrupted,
-                                    usually by lack of network access.
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </li>
-            </ul>
-        </li>
-    </ul>
-</div>
-<div class="details">
-    <ul class="blockList">
-        <li class="blockList">
-            <!-- ============ METHOD DETAIL ========== -->
-            <ul class="blockList">
-                <li class="blockList"><a name="method.detail">
-                    <!--   -->
-                </a>
-
-                    <h3>Method Detail</h3>
-                    <a name="onLoggedIn--">
+                <div class="block">Callback used to deliver information about connection state
+                    events.
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="summary">
+        <ul class="blockList">
+            <li class="blockList">
+                <!-- ========== METHOD SUMMARY =========== -->
+                <ul class="blockList">
+                    <li class="blockList"><a name="method.summary">
                         <!--   -->
                     </a>
-                    <ul class="blockList">
-                        <li class="blockList">
-                            <h4>onLoggedIn</h4>
-                            <pre>void&nbsp;onLoggedIn()</pre>
-                            <div class="block">Sent when the user has successfully logged in
-                            </div>
-                        </li>
-                    </ul>
-                    <a name="onLoggedOut--">
+
+                        <h3>Method Summary</h3>
+                        <table class="memberSummary" border="0" cellpadding="3" cellspacing="0"
+                               summary="Method Summary table, listing methods, and an explanation">
+                            <caption><span id="t0"
+                                           class="activeTableTab"><span>All Methods</span><span
+                                    class="tabEnd">&nbsp;</span></span><span id="t2"
+                                                                             class="tableTab"><span><a
+                                    href="javascript:show(2);">Instance Methods</a></span><span
+                                    class="tabEnd">&nbsp;</span></span><span id="t3"
+                                                                             class="tableTab"><span><a
+                                    href="javascript:show(4);">Abstract Methods</a></span><span
+                                    class="tabEnd">&nbsp;</span></span></caption>
+                            <tr>
+                                <th class="colFirst" scope="col">Modifier and Type</th>
+                                <th class="colLast" scope="col">Method and Description</th>
+                            </tr>
+                            <tr id="i0" class="altColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onConnectionMessage-java.lang.String-">onConnectionMessage</a></span>(<a
+                                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                                        title="class or interface in java.lang">String</a>&nbsp;message)</code>
+
+                                    <div class="block">Connection message sent from the server to
+                                        the user.
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="i1" class="rowColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoggedIn--">onLoggedIn</a></span>()</code>
+
+                                    <div class="block">Sent when the user has successfully logged
+                                        in
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="i2" class="altColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoggedOut--">onLoggedOut</a></span>()</code>
+
+                                    <div class="block">Sent when the user has finished logging out
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="i3" class="rowColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onLoginFailed-java.lang.Throwable-">onLoginFailed</a></span>(<a
+                                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true"
+                                        title="class or interface in java.lang">Throwable</a>&nbsp;error)</code>
+
+                                    <div class="block">Sent when login attempt fails.</div>
+                                </td>
+                            </tr>
+                            <tr id="i4" class="altColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onNewCredentials-java.lang.String-">onNewCredentials</a></span>(<a
+                                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                                        title="class or interface in java.lang">String</a>&nbsp;credentialsBlob)</code>
+
+                                    <div class="block">May also be sent when the user finishes
+                                        logging in.
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="i5" class="rowColor">
+                                <td class="colFirst"><code>void</code></td>
+                                <td class="colLast"><code><span class="memberNameLink"><a
+                                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html#onTemporaryError--">onTemporaryError</a></span>()</code>
+
+                                    <div class="block">Sent when service has been interrupted,
+                                        usually by lack of network access.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="details">
+        <ul class="blockList">
+            <li class="blockList">
+                <!-- ============ METHOD DETAIL ========== -->
+                <ul class="blockList">
+                    <li class="blockList"><a name="method.detail">
                         <!--   -->
                     </a>
-                    <ul class="blockList">
-                        <li class="blockList">
-                            <h4>onLoggedOut</h4>
-                            <pre>void&nbsp;onLoggedOut()</pre>
-                            <div class="block">Sent when the user has finished logging out</div>
-                        </li>
-                    </ul>
-                    <a name="onLoginFailed-java.lang.Throwable-">
-                        <!--   -->
-                    </a>
-                    <ul class="blockList">
-                        <li class="blockList">
-                            <h4>onLoginFailed</h4>
+
+                        <h3>Method Detail</h3>
+                        <a name="onLoggedIn--">
+                            <!--   -->
+                        </a>
+                        <ul class="blockList">
+                            <li class="blockList">
+                                <h4>onLoggedIn</h4>
+                                <pre>void&nbsp;onLoggedIn()</pre>
+                                <div class="block">Sent when the user has successfully logged in
+                                </div>
+                            </li>
+                        </ul>
+                        <a name="onLoggedOut--">
+                            <!--   -->
+                        </a>
+                        <ul class="blockList">
+                            <li class="blockList">
+                                <h4>onLoggedOut</h4>
+                                <pre>void&nbsp;onLoggedOut()</pre>
+                                <div class="block">Sent when the user has finished logging out</div>
+                            </li>
+                        </ul>
+                        <a name="onLoginFailed-java.lang.Throwable-">
+                            <!--   -->
+                        </a>
+                        <ul class="blockList">
+                            <li class="blockList">
+                                <h4>onLoginFailed</h4>
                                 <pre>void&nbsp;onLoginFailed(<a
                                         href="http://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true"
                                         title="class or interface in java.lang">Throwable</a>&nbsp;error)</pre>
-                            <div class="block">Sent when login attempt fails.</div>
-                            <dl>
-                                <dt><span class="paramLabel">Parameters:</span></dt>
-                                <dd><code>error</code> - The error with which login failed.</dd>
-                            </dl>
-                        </li>
-                    </ul>
-                    <a name="onTemporaryError--">
-                        <!--   -->
-                    </a>
-                    <ul class="blockList">
-                        <li class="blockList">
-                            <h4>onTemporaryError</h4>
-                            <pre>void&nbsp;onTemporaryError()</pre>
-                            <div class="block">Sent when service has been interrupted, usually
-                                by lack of network access. However, it
-                                can also occur if there is a problem with Spotify's backend
-                                services, or also when the
-                                user switches from WiFi to 3G. These errors can occur in many
-                                non-critical situations,
-                                and thus it is <b>not necessary</b> to show toasts or alert
-                                dialogs when receiving this
-                                event, or else you will unnecessarily annoy or panic the user.
+                                <div class="block">Sent when login attempt fails.</div>
+                                <dl>
+                                    <dt><span class="paramLabel">Parameters:</span></dt>
+                                    <dd><code>error</code> - The error with which login failed.</dd>
+                                </dl>
+                            </li>
+                        </ul>
+                        <a name="onTemporaryError--">
+                            <!--   -->
+                        </a>
+                        <ul class="blockList">
+                            <li class="blockList">
+                                <h4>onTemporaryError</h4>
+                                <pre>void&nbsp;onTemporaryError()</pre>
+                                <div class="block">Sent when service has been interrupted, usually
+                                    by lack of network access. However, it
+                                    can also occur if there is a problem with Spotify's backend
+                                    services, or also when the
+                                    user switches from WiFi to 3G. These errors can occur in many
+                                    non-critical situations,
+                                    and thus it is <b>not necessary</b> to show toasts or alert
+                                    dialogs when receiving this
+                                    event, or else you will unnecessarily annoy or panic the user.
 
-                                However, it can be useful to know about these events if
-                                operations are consistently
-                                failing, in which case showing a toast or alert may be
-                                justified.
-                            </div>
-                        </li>
-                    </ul>
-                    <a name="onNewCredentials-java.lang.String-">
-                        <!--   -->
-                    </a>
-                    <ul class="blockList">
-                        <li class="blockList">
-                            <h4>onNewCredentials</h4>
+                                    However, it can be useful to know about these events if
+                                    operations are consistently
+                                    failing, in which case showing a toast or alert may be
+                                    justified.
+                                </div>
+                            </li>
+                        </ul>
+                        <a name="onNewCredentials-java.lang.String-">
+                            <!--   -->
+                        </a>
+                        <ul class="blockList">
+                            <li class="blockList">
+                                <h4>onNewCredentials</h4>
                                 <pre>void&nbsp;onNewCredentials(<a
                                         href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
                                         title="class or interface in java.lang">String</a>&nbsp;credentialsBlob)</pre>
-                            <div class="block">May also be sent when the user finishes logging
-                                in. The credentials blob may be stored
-                                in your app's local preferences to automatically log the user in
-                                when the app starts.
-                            </div>
-                            <dl>
-                                <dt><span class="paramLabel">Parameters:</span></dt>
-                                <dd><code>credentialsBlob</code> - Credentials blob for the user
-                                </dd>
-                            </dl>
-                        </li>
-                    </ul>
-                    <a name="onConnectionMessage-java.lang.String-">
-                        <!--   -->
-                    </a>
-                    <ul class="blockListLast">
-                        <li class="blockList">
-                            <h4>onConnectionMessage</h4>
+                                <div class="block">May also be sent when the user finishes logging
+                                    in. The credentials blob may be stored
+                                    in your app's local preferences to automatically log the user in
+                                    when the app starts.
+                                </div>
+                                <dl>
+                                    <dt><span class="paramLabel">Parameters:</span></dt>
+                                    <dd><code>credentialsBlob</code> - Credentials blob for the user
+                                    </dd>
+                                </dl>
+                            </li>
+                        </ul>
+                        <a name="onConnectionMessage-java.lang.String-">
+                            <!--   -->
+                        </a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>onConnectionMessage</h4>
                                 <pre>void&nbsp;onConnectionMessage(<a
                                         href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
                                         title="class or interface in java.lang">String</a>&nbsp;message)</pre>
-                            <div class="block">Connection message sent from the server to the
-                                user.
-                            </div>
-                            <dl>
-                                <dt><span class="paramLabel">Parameters:</span></dt>
-                                <dd><code>message</code> - Message</dd>
-                            </dl>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-    </ul>
-</div>
+                                <div class="block">Connection message sent from the server to the
+                                    user.
+                                </div>
+                                <dl>
+                                    <dt><span class="paramLabel">Parameters:</span></dt>
+                                    <dd><code>message</code> - Message</dd>
+                                </dl>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 </div>
 <!-- ========= END OF CLASS DATA ========= -->
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
@@ -391,8 +387,6 @@ var activeTableTab = "activeTableTab";
     allClassesLink.style.display = "none";
   }
   //-->
-
-
 
         </script>
     </div>

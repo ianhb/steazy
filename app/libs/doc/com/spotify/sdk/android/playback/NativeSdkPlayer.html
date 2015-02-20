@@ -26,8 +26,6 @@ var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
 
-
-
 </script>
 <noscript>
     <div>JavaScript is disabled on your browser.</div>
@@ -81,8 +79,6 @@ var activeTableTab = "activeTableTab";
     allClassesLink.style.display = "none";
   }
   //-->
-
-
 
         </script>
     </div>
@@ -217,299 +213,298 @@ implements <a href="../../../../../com/spotify/sdk/android/playback/NativePlayer
 </ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
-    <!--   -->
-</a>
-
-<h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0"
-       summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span
-        class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a
-        href="javascript:show(2);">Instance Methods</a></span><span
-        class="tabEnd">&nbsp;</span></span><span
-        id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete
-    Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-    <th class="colFirst" scope="col">Modifier and Type</th>
-    <th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tr id="i0" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#clearQueue--">clearQueue</a></span>()</code>
-
-        <div class="block">Clears the queue.</div>
-    </td>
-</tr>
-<tr id="i1" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#destroy--">destroy</a></span>()</code>
-
-        <div class="block">Destroys the native player.</div>
-    </td>
-</tr>
-<tr id="i2" class="altColor">
-    <td class="colFirst"><code><a
-            href="../../../../../com/spotify/sdk/android/playback/PlayerState.html"
-            title="class in com.spotify.sdk.android.playback">PlayerState</a></code>
-    </td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#getPlayerState--">getPlayerState</a></span>()</code>
-
-        <div class="block">Fetches player state from the native player.</div>
-    </td>
-</tr>
-<tr id="i3" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#initialize-com.spotify.sdk.android.playback.Config-">initialize</a></span>(<a
-            href="../../../../../com/spotify/sdk/android/playback/Config.html"
-            title="class in com.spotify.sdk.android.playback">Config</a>&nbsp;config)</code>
-
-        <div class="block">Initializes the native player.</div>
-    </td>
-</tr>
-<tr id="i4" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#login-java.lang.String-">login</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>&nbsp;oauthToken)</code>
-
-        <div class="block">Logs in to the native player.</div>
-    </td>
-</tr>
-<tr id="i5" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#logout--">logout</a></span>()</code>
-
-        <div class="block">Log out from the native player.</div>
-    </td>
-</tr>
-<tr id="i6" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#pause--">pause</a></span>()</code>
-
-        <div class="block">Pauses currently playing track.</div>
-    </td>
-</tr>
-<tr id="i7" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playTrackList-java.lang.String:A-">playTrackList</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>[]&nbsp;uris)</code>
-
-        <div class="block">Plays a list of uris.</div>
-    </td>
-</tr>
-<tr id="i8" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playTrackList-java.lang.String:A-int-int-">playTrackList</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>[]&nbsp;uris,
-        int&nbsp;index,
-        int&nbsp;positionInMs)</code>
-
-        <div class="block">Plays a list of uris from specified index and specified
-            position.
-        </div>
-    </td>
-</tr>
-<tr id="i9" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playUri-java.lang.String-">playUri</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>&nbsp;uri)</code>
-
-        <div class="block">Plays a single uri.</div>
-    </td>
-</tr>
-<tr id="i10" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playUri-java.lang.String-int-int-">playUri</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>&nbsp;uri,
-        int&nbsp;index,
-        int&nbsp;positionInMs)</code>
-
-        <div class="block">Plays a single uri from specified index and specified
-            position.
-        </div>
-    </td>
-</tr>
-<tr id="i11" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#pumpEvents--">pumpEvents</a></span>()</code>
-
-        <div class="block">Sends the command to native SDK to return all awaiting
-            events.
-        </div>
-    </td>
-</tr>
-<tr id="i12" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#queue-java.lang.String-">queue</a></span>(<a
-            href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
-            title="class or interface in java.lang">String</a>&nbsp;uri)</code>
-
-        <div class="block">Queue the track.</div>
-    </td>
-</tr>
-<tr id="i13" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#refreshCache--">refreshCache</a></span>()</code>
-
-        <div class="block">Triggers cache refresh and possible eviction of state data.
-        </div>
-    </td>
-</tr>
-<tr id="i14" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#registerAudioDeliveredCallback-com.spotify.sdk.android.playback.NativePlayer.AudioDeliveredCallback-">registerAudioDeliveredCallback</a></span>(<a
-            href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioDeliveredCallback.html"
-            title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioDeliveredCallback</a>&nbsp;callback)</code>
-
-        <div class="block">Registers the callback that will be invoked when
-            native player pushes audio data to java layer.
-        </div>
-    </td>
-</tr>
-<tr id="i15" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#registerAudioFlushCallback-com.spotify.sdk.android.playback.NativePlayer.AudioFlushCallback-">registerAudioFlushCallback</a></span>(<a
-            href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioFlushCallback.html"
-            title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioFlushCallback</a>&nbsp;callback)</code>
-
-        <div class="block">Registers the callback that will be invoked when
-            native player requests flushing of audio buffer.
-        </div>
-    </td>
-</tr>
-<tr id="i16" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#resume--">resume</a></span>()</code>
-
-        <div class="block">Resumes currently playing track.</div>
-    </td>
-</tr>
-<tr id="i17" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#seekToPosition-int-">seekToPosition</a></span>(int&nbsp;positionInMs)</code>
-
-        <div class="block">Skips currently playing song to defined position.</div>
-    </td>
-</tr>
-<tr id="i18" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setConnectionStateCallback-com.spotify.sdk.android.playback.ConnectionStateCallback-">setConnectionStateCallback</a></span>(<a
-            href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html"
-            title="interface in com.spotify.sdk.android.playback">ConnectionStateCallback</a>&nbsp;callback)</code>
-
-        <div class="block">Sets the callback that will receive all connection messages
-            from the native player.
-        </div>
-    </td>
-</tr>
-<tr id="i19" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setConnectivityStatus-int-">setConnectivityStatus</a></span>(int&nbsp;status)</code>
-
-        <div class="block">Sends the information about current connectivity
-            to native player.
-        </div>
-    </td>
-</tr>
-<tr id="i20" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setPlayerNotificationCallback-com.spotify.sdk.android.playback.NativePlayerNotificationCallback-">setPlayerNotificationCallback</a></span>(com.spotify.sdk.android.playback.NativePlayerNotificationCallback&nbsp;callback)</code>
-
-        <div class="block">Registers callback for all player notifications.</div>
-    </td>
-</tr>
-<tr id="i21" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setRepeat-boolean-">setRepeat</a></span>(boolean&nbsp;enabled)</code>
-
-        <div class="block">Turns repeating on and off.</div>
-    </td>
-</tr>
-<tr id="i22" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setShuffle-boolean-">setShuffle</a></span>(boolean&nbsp;enabled)</code>
-
-        <div class="block">Turns shuffling on and off.</div>
-    </td>
-</tr>
-<tr id="i23" class="rowColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#skipToNext--">skipToNext</a></span>()</code>
-
-        <div class="block">Skips to next track.</div>
-    </td>
-</tr>
-<tr id="i24" class="altColor">
-    <td class="colFirst"><code>void</code></td>
-    <td class="colLast"><code><span class="memberNameLink"><a
-            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#skipToPrevious--">skipToPrevious</a></span>()</code>
-
-        <div class="block">Skips to previous track.</div>
-    </td>
-</tr>
-</table>
-<ul class="blockList">
-    <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+    <li class="blockList"><a name="method.summary">
         <!--   -->
     </a>
 
-        <h3>Methods inherited from class&nbsp;java.lang.<a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true"
-                title="class or interface in java.lang">Object</a></h3>
-        <code><a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--"
-                title="class or interface in java.lang">clone</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-"
-                title="class or interface in java.lang">equals</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--"
-                title="class or interface in java.lang">finalize</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--"
-                title="class or interface in java.lang">getClass</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--"
-                title="class or interface in java.lang">hashCode</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--"
-                title="class or interface in java.lang">notify</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--"
-                title="class or interface in java.lang">notifyAll</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--"
-                title="class or interface in java.lang">toString</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--"
-                title="class or interface in java.lang">wait</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-"
-                title="class or interface in java.lang">wait</a>, <a
-                href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-"
-                title="class or interface in java.lang">wait</a></code></li>
-</ul>
-</li>
+        <h3>Method Summary</h3>
+        <table class="memberSummary" border="0" cellpadding="3" cellspacing="0"
+               summary="Method Summary table, listing methods, and an explanation">
+            <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span
+                    class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a
+                    href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span
+                    id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete
+                Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+            <tr>
+                <th class="colFirst" scope="col">Modifier and Type</th>
+                <th class="colLast" scope="col">Method and Description</th>
+            </tr>
+            <tr id="i0" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#clearQueue--">clearQueue</a></span>()</code>
+
+                    <div class="block">Clears the queue.</div>
+                </td>
+            </tr>
+            <tr id="i1" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#destroy--">destroy</a></span>()</code>
+
+                    <div class="block">Destroys the native player.</div>
+                </td>
+            </tr>
+            <tr id="i2" class="altColor">
+                <td class="colFirst"><code><a
+                        href="../../../../../com/spotify/sdk/android/playback/PlayerState.html"
+                        title="class in com.spotify.sdk.android.playback">PlayerState</a></code>
+                </td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#getPlayerState--">getPlayerState</a></span>()</code>
+
+                    <div class="block">Fetches player state from the native player.</div>
+                </td>
+            </tr>
+            <tr id="i3" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#initialize-com.spotify.sdk.android.playback.Config-">initialize</a></span>(<a
+                        href="../../../../../com/spotify/sdk/android/playback/Config.html"
+                        title="class in com.spotify.sdk.android.playback">Config</a>&nbsp;config)</code>
+
+                    <div class="block">Initializes the native player.</div>
+                </td>
+            </tr>
+            <tr id="i4" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#login-java.lang.String-">login</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>&nbsp;oauthToken)</code>
+
+                    <div class="block">Logs in to the native player.</div>
+                </td>
+            </tr>
+            <tr id="i5" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#logout--">logout</a></span>()</code>
+
+                    <div class="block">Log out from the native player.</div>
+                </td>
+            </tr>
+            <tr id="i6" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#pause--">pause</a></span>()</code>
+
+                    <div class="block">Pauses currently playing track.</div>
+                </td>
+            </tr>
+            <tr id="i7" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playTrackList-java.lang.String:A-">playTrackList</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>[]&nbsp;uris)</code>
+
+                    <div class="block">Plays a list of uris.</div>
+                </td>
+            </tr>
+            <tr id="i8" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playTrackList-java.lang.String:A-int-int-">playTrackList</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>[]&nbsp;uris,
+                    int&nbsp;index,
+                    int&nbsp;positionInMs)</code>
+
+                    <div class="block">Plays a list of uris from specified index and specified
+                        position.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i9" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playUri-java.lang.String-">playUri</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>&nbsp;uri)</code>
+
+                    <div class="block">Plays a single uri.</div>
+                </td>
+            </tr>
+            <tr id="i10" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#playUri-java.lang.String-int-int-">playUri</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>&nbsp;uri,
+                    int&nbsp;index,
+                    int&nbsp;positionInMs)</code>
+
+                    <div class="block">Plays a single uri from specified index and specified
+                        position.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i11" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#pumpEvents--">pumpEvents</a></span>()</code>
+
+                    <div class="block">Sends the command to native SDK to return all awaiting
+                        events.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i12" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#queue-java.lang.String-">queue</a></span>(<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true"
+                        title="class or interface in java.lang">String</a>&nbsp;uri)</code>
+
+                    <div class="block">Queue the track.</div>
+                </td>
+            </tr>
+            <tr id="i13" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#refreshCache--">refreshCache</a></span>()</code>
+
+                    <div class="block">Triggers cache refresh and possible eviction of state data.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i14" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#registerAudioDeliveredCallback-com.spotify.sdk.android.playback.NativePlayer.AudioDeliveredCallback-">registerAudioDeliveredCallback</a></span>(<a
+                        href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioDeliveredCallback.html"
+                        title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioDeliveredCallback</a>&nbsp;callback)</code>
+
+                    <div class="block">Registers the callback that will be invoked when
+                        native player pushes audio data to java layer.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i15" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#registerAudioFlushCallback-com.spotify.sdk.android.playback.NativePlayer.AudioFlushCallback-">registerAudioFlushCallback</a></span>(<a
+                        href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioFlushCallback.html"
+                        title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioFlushCallback</a>&nbsp;callback)</code>
+
+                    <div class="block">Registers the callback that will be invoked when
+                        native player requests flushing of audio buffer.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i16" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#resume--">resume</a></span>()</code>
+
+                    <div class="block">Resumes currently playing track.</div>
+                </td>
+            </tr>
+            <tr id="i17" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#seekToPosition-int-">seekToPosition</a></span>(int&nbsp;positionInMs)</code>
+
+                    <div class="block">Skips currently playing song to defined position.</div>
+                </td>
+            </tr>
+            <tr id="i18" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setConnectionStateCallback-com.spotify.sdk.android.playback.ConnectionStateCallback-">setConnectionStateCallback</a></span>(<a
+                        href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html"
+                        title="interface in com.spotify.sdk.android.playback">ConnectionStateCallback</a>&nbsp;callback)</code>
+
+                    <div class="block">Sets the callback that will receive all connection messages
+                        from the native player.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i19" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setConnectivityStatus-int-">setConnectivityStatus</a></span>(int&nbsp;status)</code>
+
+                    <div class="block">Sends the information about current connectivity
+                        to native player.
+                    </div>
+                </td>
+            </tr>
+            <tr id="i20" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setPlayerNotificationCallback-com.spotify.sdk.android.playback.NativePlayerNotificationCallback-">setPlayerNotificationCallback</a></span>(com.spotify.sdk.android.playback.NativePlayerNotificationCallback&nbsp;callback)</code>
+
+                    <div class="block">Registers callback for all player notifications.</div>
+                </td>
+            </tr>
+            <tr id="i21" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setRepeat-boolean-">setRepeat</a></span>(boolean&nbsp;enabled)</code>
+
+                    <div class="block">Turns repeating on and off.</div>
+                </td>
+            </tr>
+            <tr id="i22" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#setShuffle-boolean-">setShuffle</a></span>(boolean&nbsp;enabled)</code>
+
+                    <div class="block">Turns shuffling on and off.</div>
+                </td>
+            </tr>
+            <tr id="i23" class="rowColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#skipToNext--">skipToNext</a></span>()</code>
+
+                    <div class="block">Skips to next track.</div>
+                </td>
+            </tr>
+            <tr id="i24" class="altColor">
+                <td class="colFirst"><code>void</code></td>
+                <td class="colLast"><code><span class="memberNameLink"><a
+                        href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html#skipToPrevious--">skipToPrevious</a></span>()</code>
+
+                    <div class="block">Skips to previous track.</div>
+                </td>
+            </tr>
+        </table>
+        <ul class="blockList">
+            <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+                <!--   -->
+            </a>
+
+                <h3>Methods inherited from class&nbsp;java.lang.<a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true"
+                        title="class or interface in java.lang">Object</a></h3>
+                <code><a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--"
+                        title="class or interface in java.lang">clone</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-"
+                        title="class or interface in java.lang">equals</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--"
+                        title="class or interface in java.lang">finalize</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--"
+                        title="class or interface in java.lang">getClass</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--"
+                        title="class or interface in java.lang">hashCode</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--"
+                        title="class or interface in java.lang">notify</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--"
+                        title="class or interface in java.lang">notifyAll</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--"
+                        title="class or interface in java.lang">toString</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--"
+                        title="class or interface in java.lang">wait</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-"
+                        title="class or interface in java.lang">wait</a>, <a
+                        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-"
+                        title="class or interface in java.lang">wait</a></code></li>
+        </ul>
+    </li>
 </ul>
 </li>
 </ul>
@@ -1416,8 +1411,6 @@ implements <a href="../../../../../com/spotify/sdk/android/playback/NativePlayer
     allClassesLink.style.display = "none";
   }
   //-->
-
-
 
         </script>
     </div>

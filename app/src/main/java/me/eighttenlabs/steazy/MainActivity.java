@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.authentication.SpotifyAuthentication;
@@ -32,11 +33,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static final String CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
-    private static final String REDIRECT_URI = "spotify-sub://callback";
-    ArrayList<SpotifyWebObject> webObjects;
+    private static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
+    private static final String SPOTIFY_SUB_CALLBACK = "spotify-sub://callback";
+
+    private static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
+    private static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
+    ArrayList<Song> webObjects;
     private MusicController controller;
-    private ArrayList<SpotifyWebObject> savedSearch;
+    private ArrayList<Song> savedSearch;
 
     private ImageButton skipButton;
     private ImageButton previousButton;
@@ -50,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SpotifyAuthentication.openAuthWindow(CLIENT_ID, "token", REDIRECT_URI, new String[]{"user-read-private", "streaming"}, null, this);
+        SpotifyAuthentication.openAuthWindow(SPOTIFY_CLIENT_ID, "token", SPOTIFY_SUB_CALLBACK, new String[]{"user-read-private", "streaming"}, null, this);
 
         webObjects = new ArrayList<>();
 
@@ -97,12 +101,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void songPicked(View view) {
-        SpotifyWebObject object = webObjects.get(Integer.parseInt(view.getTag().toString()));
+        WebObject object = webObjects.get(Integer.parseInt(view.getTag().toString()));
         Log.d("Popularity", String.valueOf(object.getPopularity()));
 
         if (object instanceof Song) {
             controller.play((Song) object);
-        } else if (object instanceof Artist) {
+        }
+        /**else if (object instanceof Artist) {
             try {
                 webObjects = (new SpotifySearch.ArtistSongs().execute(object.getTag()).get());
                 setSongList();
@@ -110,6 +115,7 @@ public class MainActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
         }
+         **/
 
     }
 
@@ -121,9 +127,32 @@ public class MainActivity extends ActionBarActivity {
                 songPicked(view);
             }
         });
-        SongAdapter adapter = new SongAdapter(getApplicationContext(), webObjects);
+        Adapter adapter = new Adapter(getApplicationContext(), webObjects);
         songList.setAdapter(adapter);
         registerForContextMenu(songList);
+    }
+
+    private ArrayList<Song> searchSongs(String query) {
+        ArrayList<Song> spotify = new ArrayList<>();
+        ArrayList<Song> soundcloud = new ArrayList<>();
+        try {
+            SpotifySearch spotifySearch = new SpotifySearch();
+            SoundCloudSearch soundCloudSearch = new SoundCloudSearch(controller.wrapper);
+            spotifySearch.execute(query);
+            soundCloudSearch.execute(query);
+            spotify = spotifySearch.get();
+            soundcloud = soundCloudSearch.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ArrayList<Song> returnList = new ArrayList<>();
+        while (!spotify.isEmpty() && !soundcloud.isEmpty()) {
+            returnList.add(spotify.get(0));
+            spotify.remove(0);
+            returnList.add(soundcloud.get(0));
+            soundcloud.remove(0);
+        }
+        return returnList;
     }
 
     @Override
@@ -132,10 +161,10 @@ public class MainActivity extends ActionBarActivity {
         Uri uri = intent.getData();
         if (uri != null) {
             AuthenticationResponse authenticationResponse = SpotifyAuthentication.parseOauthResponse(uri);
-            Config config = new Config(this, authenticationResponse.getAccessToken(), CLIENT_ID);
+            Config config = new Config(this, authenticationResponse.getAccessToken(), SPOTIFY_CLIENT_ID);
             Spotify spotify = new Spotify();
             controller = new MusicController(this);
-            controller.setPlayer(spotify.getPlayer(config, controller, controller));
+            controller.setPlayers(spotify.getPlayer(config, controller, controller), new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null));
         }
     }
 
@@ -182,7 +211,7 @@ public class MainActivity extends ActionBarActivity {
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                                 try {
-                                    webObjects = new SpotifySearch().execute(box.getText().toString()).get();
+                                    webObjects = searchSongs(box.getText().toString());
                                     setSongList();
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -218,7 +247,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        SpotifyWebObject object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        WebObject object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         if (!(object instanceof Song)) {
             return true;
         }

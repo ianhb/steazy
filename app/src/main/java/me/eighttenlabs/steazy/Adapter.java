@@ -13,12 +13,12 @@ import java.util.ArrayList;
 /**
  * Created by Ian on 1/18/2015.
  */
-public class SongAdapter extends BaseAdapter {
+public class Adapter extends BaseAdapter {
 
-    private ArrayList<SpotifyWebObject> list;
+    private ArrayList<Song> list;
     private LayoutInflater songInf;
 
-    public SongAdapter(Context c, ArrayList<SpotifyWebObject> list) {
+    public Adapter(Context c, ArrayList<Song> list) {
         this.list = list;
         songInf = LayoutInflater.from(c);
     }
@@ -41,12 +41,13 @@ public class SongAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        SpotifyWebObject object = list.get(position);
+        WebObject object = list.get(position);
         if (object instanceof Song) {
             LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
             Song curSong = (Song) object;
             TextView artist = (TextView) layout.findViewById(R.id.artist);
             TextView name = (TextView) layout.findViewById(R.id.name);
+            TextView source = (TextView) layout.findViewById(R.id.source);
             String finalArtistString = "";
             for (String art : curSong.artists) {
                 finalArtistString += art + ", ";
@@ -54,6 +55,7 @@ public class SongAdapter extends BaseAdapter {
             finalArtistString = finalArtistString.substring(0, finalArtistString.length() - 2);
             artist.setText(finalArtistString);
             name.setText(curSong.name);
+            source.setText(curSong.source);
             layout.setTag(position);
             return layout;
         }

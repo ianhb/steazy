@@ -21,8 +21,6 @@
     }
 //-->
 
-
-
 </script>
 <noscript>
     <div>JavaScript is disabled on your browser.</div>
@@ -73,8 +71,6 @@
   }
   //-->
 
-
-
         </script>
     </div>
     <a name="skip.navbar.top">
@@ -90,255 +86,255 @@
     <p>See:&nbsp;<a href="#package.description">Description</a></p>
 </div>
 <div class="contentContainer">
-<ul class="blockList">
-<li class="blockList">
-    <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
-           summary="Interface Summary table, listing interfaces, and an explanation">
-        <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-        <tr>
-            <th class="colFirst" scope="col">Interface</th>
-            <th class="colLast" scope="col">Description</th>
-        </tr>
-        <tbody>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html"
-                    title="interface in com.spotify.sdk.android.playback">ConnectionStateCallback</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Callback used to deliver information about connection
-                    state events.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/NativePlayer.html"
-                    title="interface in com.spotify.sdk.android.playback">NativePlayer</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Any native player that connects to Spotify playback
-                    services must implement
-                    this interface.
-                </div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioDeliveredCallback.html"
-                    title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioDeliveredCallback</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Interface used to register callback for audio data
-                    received
-                    from native player.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioFlushCallback.html"
-                    title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioFlushCallback</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Interface used to register callback for audio flush
-                    command
-                    received from native player.
-                </div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/Player.InitializationObserver.html"
-                    title="interface in com.spotify.sdk.android.playback">Player.InitializationObserver</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Observer interface used to know when the player is fully
-                    initialized.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.html"
-                    title="interface in com.spotify.sdk.android.playback">PlayerNotificationCallback</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Callback used to send player events to an observer</div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayerStateCallback.html"
-                    title="interface in com.spotify.sdk.android.playback">PlayerStateCallback</a>
-            </td>
-            <td class="colLast">&nbsp;</td>
-        </tr>
-        </tbody>
-    </table>
-</li>
-<li class="blockList">
-    <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
-           summary="Class Summary table, listing classes, and an explanation">
-        <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
-        <tr>
-            <th class="colFirst" scope="col">Class</th>
-            <th class="colLast" scope="col">Description</th>
-        </tr>
-        <tbody>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/AudioRingBuffer.html"
-                    title="class in com.spotify.sdk.android.playback">AudioRingBuffer</a>
-            </td>
-            <td class="colLast">
-                <div class="block">A ring buffer to hold audio data before they can be
-                    written to the audio output.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/Config.html"
-                    title="class in com.spotify.sdk.android.playback">Config</a></td>
-            <td class="colLast">
-                <div class="block">This class is used to pass configuration parameters to
-                    the native SDK layer.
-                </div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/Config.DeviceType.html"
-                    title="class in com.spotify.sdk.android.playback">Config.DeviceType</a>
-            </td>
-            <td class="colLast">
-                <div class="block">The SDK represents device types as raw integers, but
-                    rather than dealing with an
-                    enum an abstract class is used, as we are missing some intermediate
-                    values and
-                    require a bit more granularity here than an enum can offer.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/Connectivity.html"
-                    title="class in com.spotify.sdk.android.playback">Connectivity</a></td>
-            <td class="colLast">
-                <div class="block">Class used for sending connectivity messages to the
-                    SDK.
-                </div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html"
-                    title="class in com.spotify.sdk.android.playback">NativeSdkPlayer</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Bridge to the SDK's native player.</div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayConfig.html"
-                    title="class in com.spotify.sdk.android.playback">PlayConfig</a></td>
-            <td class="colLast">
-                <div class="block">This object can be passed to <a
-                        href="../../../../../com/spotify/sdk/android/playback/Player.html#play-com.spotify.sdk.android.playback.PlayConfig-"><code>Player.play(PlayConfig)</code></a>
-                    method
-                    if more control over playback is required.
-                </div>
-            </td>
-        </tr>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/Player.html"
-                    title="class in com.spotify.sdk.android.playback">Player</a></td>
-            <td class="colLast">
-                <div class="block">This class is responsible for playback of Spotify
-                    content.
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayerState.html"
-                    title="class in com.spotify.sdk.android.playback">PlayerState</a></td>
-            <td class="colLast">
-                <div class="block">Class which holds information about the current player
-                    state
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</li>
-<li class="blockList">
-    <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
-           summary="Enum Summary table, listing enums, and an explanation">
-        <caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
-        <tr>
-            <th class="colFirst" scope="col">Enum</th>
-            <th class="colLast" scope="col">Description</th>
-        </tr>
-        <tbody>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.ErrorType.html"
-                    title="enum in com.spotify.sdk.android.playback">PlayerNotificationCallback.ErrorType</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Various types of playback errors that can be sent from
-                    the native player
-                </div>
-            </td>
-        </tr>
-        <tr class="rowColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.EventType.html"
-                    title="enum in com.spotify.sdk.android.playback">PlayerNotificationCallback.EventType</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Various event types which the player can send</div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</li>
-<li class="blockList">
-    <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
-           summary="Exception Summary table, listing exceptions, and an explanation">
-        <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
-        <tr>
-            <th class="colFirst" scope="col">Exception</th>
-            <th class="colLast" scope="col">Description</th>
-        </tr>
-        <tbody>
-        <tr class="altColor">
-            <td class="colFirst"><a
-                    href="../../../../../com/spotify/sdk/android/playback/NativeSpotifyException.html"
-                    title="class in com.spotify.sdk.android.playback">NativeSpotifyException</a>
-            </td>
-            <td class="colLast">
-                <div class="block">Exception used for any error which has occurred in the
-                    native side of the SDK
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</li>
-</ul>
-<a name="package.description">
-    <!--   -->
-</a>
+    <ul class="blockList">
+        <li class="blockList">
+            <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
+                   summary="Interface Summary table, listing interfaces, and an explanation">
+                <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                <tr>
+                    <th class="colFirst" scope="col">Interface</th>
+                    <th class="colLast" scope="col">Description</th>
+                </tr>
+                <tbody>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/ConnectionStateCallback.html"
+                            title="interface in com.spotify.sdk.android.playback">ConnectionStateCallback</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Callback used to deliver information about connection
+                            state events.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/NativePlayer.html"
+                            title="interface in com.spotify.sdk.android.playback">NativePlayer</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Any native player that connects to Spotify playback
+                            services must implement
+                            this interface.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioDeliveredCallback.html"
+                            title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioDeliveredCallback</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Interface used to register callback for audio data
+                            received
+                            from native player.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/NativePlayer.AudioFlushCallback.html"
+                            title="interface in com.spotify.sdk.android.playback">NativePlayer.AudioFlushCallback</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Interface used to register callback for audio flush
+                            command
+                            received from native player.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/Player.InitializationObserver.html"
+                            title="interface in com.spotify.sdk.android.playback">Player.InitializationObserver</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Observer interface used to know when the player is fully
+                            initialized.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.html"
+                            title="interface in com.spotify.sdk.android.playback">PlayerNotificationCallback</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Callback used to send player events to an observer</div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayerStateCallback.html"
+                            title="interface in com.spotify.sdk.android.playback">PlayerStateCallback</a>
+                    </td>
+                    <td class="colLast">&nbsp;</td>
+                </tr>
+                </tbody>
+            </table>
+        </li>
+        <li class="blockList">
+            <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
+                   summary="Class Summary table, listing classes, and an explanation">
+                <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                <tr>
+                    <th class="colFirst" scope="col">Class</th>
+                    <th class="colLast" scope="col">Description</th>
+                </tr>
+                <tbody>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/AudioRingBuffer.html"
+                            title="class in com.spotify.sdk.android.playback">AudioRingBuffer</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">A ring buffer to hold audio data before they can be
+                            written to the audio output.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/Config.html"
+                            title="class in com.spotify.sdk.android.playback">Config</a></td>
+                    <td class="colLast">
+                        <div class="block">This class is used to pass configuration parameters to
+                            the native SDK layer.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/Config.DeviceType.html"
+                            title="class in com.spotify.sdk.android.playback">Config.DeviceType</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">The SDK represents device types as raw integers, but
+                            rather than dealing with an
+                            enum an abstract class is used, as we are missing some intermediate
+                            values and
+                            require a bit more granularity here than an enum can offer.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/Connectivity.html"
+                            title="class in com.spotify.sdk.android.playback">Connectivity</a></td>
+                    <td class="colLast">
+                        <div class="block">Class used for sending connectivity messages to the
+                            SDK.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/NativeSdkPlayer.html"
+                            title="class in com.spotify.sdk.android.playback">NativeSdkPlayer</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Bridge to the SDK's native player.</div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayConfig.html"
+                            title="class in com.spotify.sdk.android.playback">PlayConfig</a></td>
+                    <td class="colLast">
+                        <div class="block">This object can be passed to <a
+                                href="../../../../../com/spotify/sdk/android/playback/Player.html#play-com.spotify.sdk.android.playback.PlayConfig-"><code>Player.play(PlayConfig)</code></a>
+                            method
+                            if more control over playback is required.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/Player.html"
+                            title="class in com.spotify.sdk.android.playback">Player</a></td>
+                    <td class="colLast">
+                        <div class="block">This class is responsible for playback of Spotify
+                            content.
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayerState.html"
+                            title="class in com.spotify.sdk.android.playback">PlayerState</a></td>
+                    <td class="colLast">
+                        <div class="block">Class which holds information about the current player
+                            state
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </li>
+        <li class="blockList">
+            <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
+                   summary="Enum Summary table, listing enums, and an explanation">
+                <caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                <tr>
+                    <th class="colFirst" scope="col">Enum</th>
+                    <th class="colLast" scope="col">Description</th>
+                </tr>
+                <tbody>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.ErrorType.html"
+                            title="enum in com.spotify.sdk.android.playback">PlayerNotificationCallback.ErrorType</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Various types of playback errors that can be sent from
+                            the native player
+                        </div>
+                    </td>
+                </tr>
+                <tr class="rowColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/PlayerNotificationCallback.EventType.html"
+                            title="enum in com.spotify.sdk.android.playback">PlayerNotificationCallback.EventType</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Various event types which the player can send</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </li>
+        <li class="blockList">
+            <table class="typeSummary" border="0" cellpadding="3" cellspacing="0"
+                   summary="Exception Summary table, listing exceptions, and an explanation">
+                <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                <tr>
+                    <th class="colFirst" scope="col">Exception</th>
+                    <th class="colLast" scope="col">Description</th>
+                </tr>
+                <tbody>
+                <tr class="altColor">
+                    <td class="colFirst"><a
+                            href="../../../../../com/spotify/sdk/android/playback/NativeSpotifyException.html"
+                            title="class in com.spotify.sdk.android.playback">NativeSpotifyException</a>
+                    </td>
+                    <td class="colLast">
+                        <div class="block">Exception used for any error which has occurred in the
+                            native side of the SDK
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </li>
+    </ul>
+    <a name="package.description">
+        <!--   -->
+    </a>
 
-<h2 title="Package com.spotify.sdk.android.playback Description">Package
-    com.spotify.sdk.android.playback Description</h2>
+    <h2 title="Package com.spotify.sdk.android.playback Description">Package
+        com.spotify.sdk.android.playback Description</h2>
 
-<div class="block">Contains classes used for playing music.</div>
+    <div class="block">Contains classes used for playing music.</div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar.bottom">
@@ -388,8 +384,6 @@
     allClassesLink.style.display = "none";
   }
   //-->
-
-
 
         </script>
     </div>

@@ -3,7 +3,7 @@ package me.eighttenlabs.steazy;
 /**
  * Created by Ian on 1/21/2015.
  */
-public class Artist extends SpotifyWebObject {
+public class Artist extends WebObject {
 
     private String name;
 

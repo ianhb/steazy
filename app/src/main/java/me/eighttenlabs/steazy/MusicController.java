@@ -3,6 +3,7 @@ package me.eighttenlabs.steazy;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 
+import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.ConnectionStateCallback;
 import com.spotify.sdk.android.playback.Player;
@@ -15,24 +16,21 @@ import java.util.ArrayList;
 /**
  * Created by Ian on 1/19/2015.
  */
-public class MusicController extends MediaController implements PlayerNotificationCallback, ConnectionStateCallback, Player.InitializationObserver, PlayerStateCallback {
+public class MusicController extends MediaController implements PlayerNotificationCallback, ConnectionStateCallback, Player.InitializationObserver, PlayerStateCallback, MediaController.MediaPlayerControl {
 
+    ApiWrapper wrapper;
     private Player mPlayer;
     private PlayerState mState;
     private ArrayList<Song> queue;
     private MainActivity activity;
     private int queuePosition;
-
     private boolean manualSongChange;
-
-    private SeekBarUpdater updateThread;
 
     public MusicController(MainActivity activity) {
         super(activity.getApplicationContext(), false);
         setEnabled(true);
         queue = new ArrayList<>();
         this.activity = activity;
-        updateThread = new SeekBarUpdater();
         manualSongChange = false;
         activity.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -61,17 +59,18 @@ public class MusicController extends MediaController implements PlayerNotificati
         queue.add(song);
     }
 
-    public ArrayList<SpotifyWebObject> getQueue() {
-        ArrayList<SpotifyWebObject> displayList = new ArrayList<>();
+    public ArrayList<Song> getQueue() {
+        ArrayList<Song> displayList = new ArrayList<>();
         for (Song s : queue) {
             displayList.add(s);
         }
         return displayList;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayers(Player player, ApiWrapper wrapper) {
         mPlayer = player;
         mPlayer.getPlayerState(this);
+        this.wrapper = wrapper;
     }
 
     public void play(Song song) {
@@ -199,34 +198,44 @@ public class MusicController extends MediaController implements PlayerNotificati
 
     }
 
+    @Override
+    public boolean canSeekBackward() {
+        return false;
+    }
 
-    private class SeekBarUpdater extends Thread {
+    @Override
+    public boolean canSeekForward() {
+        return false;
+    }
 
-        boolean update;
-        PlayerState state;
-        private SeekBar seekBar;
+    @Override
+    public boolean canPause() {
+        return true;
+    }
 
-        public void run() {
-            seekBar = activity.getSeekBar();
-            state = mState;
-            seekBar.setProgress(0);
-            update = true;
-            while (update) {
-                if (state == null || state == mState) {
-                    seekBar.incrementProgressBy(250);
-                } else {
-                    seekBar.setProgress(mState.positionInMs);
-                }
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    @Override
+    public int getCurrentPosition() {
+        return 0;
+    }
 
-        public void stopRun() {
-            update = false;
-        }
+    @Override
+    public int getDuration() {
+        return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
     }
 }
+

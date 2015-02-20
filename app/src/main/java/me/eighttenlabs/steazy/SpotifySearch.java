@@ -16,13 +16,13 @@ import java.util.ArrayList;
 /**
  * Created by Ian on 1/19/2015.
  */
-public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWebObject>> {
+public class SpotifySearch extends AsyncTask<String, String, ArrayList<Song>> {
 
     private static final String HEADER = "http://ws.spotify.com/search/1/";
 
     @Override
-    protected ArrayList<SpotifyWebObject> doInBackground(String... params) {
-        ArrayList<SpotifyWebObject> objects = new ArrayList<>();
+    protected ArrayList<Song> doInBackground(String... params) {
+        ArrayList<Song> objects = new ArrayList<>();
         String searchWords = params[0].replaceAll(" ", "%20");
         try {
             String searchString = HEADER + "track.json?q=" + searchWords;
@@ -37,19 +37,19 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
             reader.close();
 
             con.disconnect();
+/**
+ searchString = HEADER + "artist.json?q=" + searchWords;
+ searchResults = new URL(searchString);
 
-            searchString = HEADER + "artist.json?q=" + searchWords;
-            searchResults = new URL(searchString);
+ con = (HttpURLConnection) searchResults.openConnection();
 
-            con = (HttpURLConnection) searchResults.openConnection();
+ reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-            reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+ objects = shuffle(objects, parseArtistJsonToArray(reader.readLine()));
 
-            objects = shuffle(objects, parseArtistJsonToArray(reader.readLine()));
-
-            reader.close();
-            con.disconnect();
-
+ reader.close();
+ con.disconnect();
+ **/
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,8 +57,8 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
         return objects;
     }
 
-    private ArrayList<SpotifyWebObject> parseSongJsonToArray(String data) {
-        ArrayList<SpotifyWebObject> songs = new ArrayList<>();
+    private ArrayList<Song> parseSongJsonToArray(String data) {
+        ArrayList<Song> songs = new ArrayList<>();
         try {
             JSONObject json = new JSONObject(data);
             JSONArray entries = json.getJSONArray("tracks");
@@ -72,8 +72,7 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
                 String[] artistArray = artistList.toArray(new String[artistList.size()]);
                 JSONObject album = entry.getJSONObject("album");
                 songs.add(new Song(entry.getString("name"), artistArray, album.getString("name"),
-                        entry.getString("href"), Float.parseFloat(entry.getString("popularity")),
-                        Integer.parseInt(album.getString("released"))));
+                        entry.getString("href"), Float.parseFloat(entry.getString("popularity")), "Spotify"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -82,27 +81,29 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
         return songs;
     }
 
-    private ArrayList<SpotifyWebObject> parseArtistJsonToArray(String data) {
-        ArrayList<SpotifyWebObject> artists = new ArrayList<>();
-        try {
-            JSONObject json = new JSONObject(data);
-            JSONArray entries = json.getJSONArray("artists");
-            for (int i = 0; i < entries.length(); i++) {
-                JSONObject entry = entries.getJSONObject(i);
-                String tag = entry.getString("href");
-                String name = entry.getString("name");
-                float pop = Float.parseFloat(entry.getString("popularity"));
-                artists.add(new Artist(name, tag, pop));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        insertionSort(artists);
-        return artists;
-    }
+    /**
+     * private ArrayList<SpotifyWebObject> parseArtistJsonToArray(String data) {
+     * ArrayList<SpotifyWebObject> artists = new ArrayList<>();
+     * try {
+     * JSONObject json = new JSONObject(data);
+     * JSONArray entries = json.getJSONArray("artists");
+     * for (int i = 0; i < entries.length(); i++) {
+     * JSONObject entry = entries.getJSONObject(i);
+     * String tag = entry.getString("href");
+     * String name = entry.getString("name");
+     * float pop = Float.parseFloat(entry.getString("popularity"));
+     * artists.add(new Artist(name, tag, pop));
+     * }
+     * } catch (JSONException e) {
+     * e.printStackTrace();
+     * }
+     * insertionSort(artists);
+     * return artists;
+     * }
+     */
 
-    private ArrayList<SpotifyWebObject> shuffle(ArrayList<SpotifyWebObject> songs, ArrayList<SpotifyWebObject> artists) {
-        ArrayList<SpotifyWebObject> returnList = new ArrayList<>();
+    private ArrayList<WebObject> shuffle(ArrayList<WebObject> songs, ArrayList<WebObject> artists) {
+        ArrayList<WebObject> returnList = new ArrayList<>();
         while (!songs.isEmpty() && !artists.isEmpty()) {
             if (songs.get(0).getPopularity() > artists.get(0).getPopularity()) {
                 returnList.add(songs.get(0));
@@ -115,11 +116,11 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
         return returnList;
     }
 
-    private void insertionSort(ArrayList<SpotifyWebObject> list) {
+    private void insertionSort(ArrayList<Song> list) {
         for (int i = 0; i < list.size(); i++) {
             int j = i;
             while (j > 0 && list.get(j - 1).getPopularity() < list.get(j).getPopularity()) {
-                SpotifyWebObject a = list.get(j);
+                Song a = list.get(j);
                 list.set(j, list.get(j - 1));
                 list.set(j - 1, a);
                 j--;
@@ -127,11 +128,11 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
         }
     }
 
-    public static class ArtistSongs extends AsyncTask<String, String, ArrayList<SpotifyWebObject>> {
+    public static class ArtistSongs extends AsyncTask<String, String, ArrayList<WebObject>> {
 
         @Override
-        protected ArrayList<SpotifyWebObject> doInBackground(String... params) {
-            ArrayList<SpotifyWebObject> objects = new ArrayList<>();
+        protected ArrayList<WebObject> doInBackground(String... params) {
+            ArrayList<WebObject> objects = new ArrayList<>();
             try {
                 String searchString = "https://api.spotify.com/v1/artists/" + params[0].substring(15) + "/top-tracks?country=US";
                 URL searchResults = new URL(searchString);
@@ -157,8 +158,8 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
             return objects;
         }
 
-        private ArrayList<SpotifyWebObject> parseArtistTopSongs(String line) {
-            ArrayList<SpotifyWebObject> songs = new ArrayList<>();
+        private ArrayList<WebObject> parseArtistTopSongs(String line) {
+            ArrayList<WebObject> songs = new ArrayList<>();
             try {
                 JSONObject json = new JSONObject(line);
                 JSONArray entries = json.getJSONArray("tracks");
@@ -172,7 +173,7 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<SpotifyWe
                     String[] artistArray = artistList.toArray(new String[artistList.size()]);
                     JSONObject album = entry.getJSONObject("album");
                     songs.add(new Song(entry.getString("name"), artistArray, album.getString("name"),
-                            entry.getString("uri"), Float.parseFloat(entry.getString("popularity")), 0));
+                            entry.getString("uri"), Float.parseFloat(entry.getString("popularity")), "Spotify"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
