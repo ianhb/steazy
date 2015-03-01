@@ -41,7 +41,7 @@ public class Adapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        WebObject object = list.get(position);
+        Song object = list.get(position);
         if (object instanceof Song) {
             LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
             Song curSong = (Song) object;
@@ -59,6 +59,7 @@ public class Adapter extends BaseAdapter {
             layout.setTag(position);
             return layout;
         }
+        /**
         if (object instanceof Artist) {
             Artist artist = (Artist) object;
             LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.artist, parent, false);
@@ -66,6 +67,7 @@ public class Adapter extends BaseAdapter {
             layout.setTag(position);
             return layout;
         }
+         **/
 
 
         return convertView;

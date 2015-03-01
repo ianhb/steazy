@@ -6,11 +6,14 @@ import android.util.Log;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Request;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -42,7 +45,7 @@ public class SoundCloudSearch extends AsyncTask<String, String, ArrayList<Song>>
                     String title = song.getString("title");
                     String[] artist = {song.getString("label_name")};
                     String album = song.getString("description");
-                    Log.d("Title", title);
+
                     soundCloudTracks.add(new Song(title, artist, album, source, (tracks.length() - i) / tracks.length(), "SoundCloud"));
                 }
             }
@@ -51,4 +54,30 @@ public class SoundCloudSearch extends AsyncTask<String, String, ArrayList<Song>>
         }
         return soundCloudTracks;
     }
+
+    public static class SoundCloudRedirect extends AsyncTask<String, String, String> {
+
+        ApiWrapper wrapper;
+
+        public SoundCloudRedirect(ApiWrapper wrap) {
+            wrapper = wrap;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HttpResponse resp = wrapper.get(Request.to(params[0]));
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    final Header location = resp.getFirstHeader("Location");
+                    if (location != null && location.getValue() != null) {
+                        return location.getValue();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return params[0];
+        }
+    }
+
 }

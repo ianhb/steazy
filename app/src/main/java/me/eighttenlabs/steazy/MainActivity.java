@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -33,17 +32,18 @@ import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
+    public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
+    public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
+    public static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
     private static final String SPOTIFY_SUB_CALLBACK = "spotify-sub://callback";
-
-    private static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
-    private static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
     ArrayList<Song> webObjects;
     private MusicController controller;
     private ArrayList<Song> savedSearch;
+    private boolean paused = false;
 
-    private ImageButton skipButton;
-    private ImageButton previousButton;
+    private ApiWrapper wrapper;
+
+
     private ImageButton playPauseButton;
     private TextView songName;
     private TextView songArtist;
@@ -52,18 +52,15 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ImageButton skipButton;
+        ImageButton previousButton;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SpotifyAuthentication.openAuthWindow(SPOTIFY_CLIENT_ID, "token", SPOTIFY_SUB_CALLBACK, new String[]{"user-read-private", "streaming"}, null, this);
 
-        webObjects = new ArrayList<>();
+        wrapper = new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null);
 
-        try {
-            webObjects = (new SpotifySearch().execute("").get());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        setSongList();
+        webObjects = new ArrayList<>();
 
         skipButton = (ImageButton) findViewById(R.id.next_button);
         previousButton = (ImageButton) findViewById(R.id.previous_button);
@@ -98,25 +95,19 @@ public class MainActivity extends ActionBarActivity {
                 controller.previous();
             }
         });
+
+        setController();
+    }
+
+    private void setController() {
+        controller = new MusicController(getApplicationContext());
+        controller.setController();
+        controller.setAnchorView(findViewById(R.id.songs));
     }
 
     public void songPicked(View view) {
-        WebObject object = webObjects.get(Integer.parseInt(view.getTag().toString()));
-        Log.d("Popularity", String.valueOf(object.getPopularity()));
-
-        if (object instanceof Song) {
-            controller.play((Song) object);
-        }
-        /**else if (object instanceof Artist) {
-            try {
-                webObjects = (new SpotifySearch.ArtistSongs().execute(object.getTag()).get());
-                setSongList();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-         **/
-
+        Song object = webObjects.get(Integer.parseInt(view.getTag().toString()));
+        controller.play(object);
     }
 
     public void setSongList() {
@@ -137,7 +128,7 @@ public class MainActivity extends ActionBarActivity {
         ArrayList<Song> soundcloud = new ArrayList<>();
         try {
             SpotifySearch spotifySearch = new SpotifySearch();
-            SoundCloudSearch soundCloudSearch = new SoundCloudSearch(controller.wrapper);
+            SoundCloudSearch soundCloudSearch = new SoundCloudSearch(wrapper);
             spotifySearch.execute(query);
             soundCloudSearch.execute(query);
             spotify = spotifySearch.get();
@@ -164,13 +155,30 @@ public class MainActivity extends ActionBarActivity {
             Config config = new Config(this, authenticationResponse.getAccessToken(), SPOTIFY_CLIENT_ID);
             Spotify spotify = new Spotify();
             controller = new MusicController(this);
-            controller.setPlayers(spotify.getPlayer(config, controller, controller), new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null));
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (paused) {
+            paused = false;
         }
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         controller.onDestroy();
     }
 
@@ -247,16 +255,13 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        WebObject object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
-        if (!(object instanceof Song)) {
-            return true;
-        }
+        Song object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         switch (item.getItemId()) {
             case R.id.play_song:
-                controller.play((Song) object);
+                controller.play(object);
                 return true;
             case R.id.queue_song:
-                controller.queue((Song) object);
+                controller.queue(object);
                 return true;
             default:
                 return super.onContextItemSelected(item);

@@ -1,53 +1,72 @@
 package me.eighttenlabs.steazy;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.util.Log;
+import android.view.View;
 import android.widget.MediaController;
-import android.widget.SeekBar;
 
-import com.soundcloud.api.ApiWrapper;
-import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.ConnectionStateCallback;
 import com.spotify.sdk.android.playback.Player;
 import com.spotify.sdk.android.playback.PlayerNotificationCallback;
 import com.spotify.sdk.android.playback.PlayerState;
-import com.spotify.sdk.android.playback.PlayerStateCallback;
 
 import java.util.ArrayList;
 
 /**
  * Created by Ian on 1/19/2015.
  */
-public class MusicController extends MediaController implements PlayerNotificationCallback, ConnectionStateCallback, Player.InitializationObserver, PlayerStateCallback, MediaController.MediaPlayerControl {
+public class MusicController extends MediaController implements PlayerNotificationCallback, ConnectionStateCallback, Player.InitializationObserver, MediaController.MediaPlayerControl {
 
-    ApiWrapper wrapper;
-    private Player mPlayer;
-    private PlayerState mState;
+    private MusicService musicService;
+    private boolean musicBound;
     private ArrayList<Song> queue;
-    private MainActivity activity;
-    private int queuePosition;
-    private boolean manualSongChange;
+    private Intent playIntent;
 
-    public MusicController(MainActivity activity) {
-        super(activity.getApplicationContext(), false);
-        setEnabled(true);
+    public MusicController(Context context) {
+        super(context);
         queue = new ArrayList<>();
-        this.activity = activity;
-        manualSongChange = false;
-        activity.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        setEnabled(true);
+        Log.d("Controller", "created");
+        ServiceConnection musicConnection = new ServiceConnection() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    mPlayer.seekToPosition(progress);
-                }
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
+                musicService = binder.getService();
+                musicService.setSongs(queue);
+                setMusicService(musicService);
+                setMusicBound(true);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public void onServiceDisconnected(ComponentName name) {
+                setMusicService(null);
+                setMusicBound(false);
             }
+        };
+        playIntent = new Intent(context, MusicService.class);
+        context.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+        context.startService(playIntent);
 
+    }
+
+    public void setController() {
+        setPrevNextListeners(new View.OnClickListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onClick(View v) {
+                next();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                previous();
             }
         });
+        setMediaPlayer(this);
+        setEnabled(true);
     }
 
     @Override
@@ -57,39 +76,115 @@ public class MusicController extends MediaController implements PlayerNotificati
 
     public void queue(Song song) {
         queue.add(song);
+        musicService.setSongs(queue);
     }
 
     public ArrayList<Song> getQueue() {
-        ArrayList<Song> displayList = new ArrayList<>();
-        for (Song s : queue) {
-            displayList.add(s);
-        }
-        return displayList;
+        return queue;
     }
 
-    public void setPlayers(Player player, ApiWrapper wrapper) {
-        mPlayer = player;
-        mPlayer.getPlayerState(this);
-        this.wrapper = wrapper;
+    public boolean isPlaying() {
+        return (musicService != null && musicBound && musicService.isPlaying());
     }
 
     public void play(Song song) {
         queue = new ArrayList<>();
-        queuePosition = 0;
         queue.add(song);
-        manualSongChange = true;
-        playNextSong();
+        musicService.setSongs(queue);
+        musicService.setQueuePosition(0);
+        musicService.playSong();
+        this.show(0);
+    }
+
+    public void setMusicService(MusicService service) {
+        musicService = service;
+    }
+
+    public void setMusicBound(boolean bound) {
+        musicBound = bound;
+    }
+
+    public void onDestroy() {
+        playIntent = null;
+        musicService.onDestroy();
+        musicService = null;
+    }
+
+    public void next() {
+        musicService.playNext();
+        setController();
+        this.show(0);
+    }
+
+    public void previous() {
+        musicService.playPrevious();
+        setController();
+        this.show(0);
+    }
+
+    public void pause() {
+        musicService.pause();
+    }
+
+    public void start() {
+        musicService.start();
+        setController();
+    }
+
+    @Override
+    public int getDuration() {
+        if (musicService != null && musicBound) {
+            return musicService.getDuration();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if (musicService != null && musicBound) {
+            return musicService.getPosition();
+        }
+        return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicService.seek(pos);
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return false;
+    }
+
+    @Override
+    public void onInitialized() {
+
     }
 
     @Override
     public void onError(Throwable throwable) {
 
-    }
-
-    @Override
-    public void onInitialized() {
-        mPlayer.addConnectionStateCallback(this);
-        mPlayer.addPlayerNotificationCallback(this);
     }
 
     @Override
@@ -100,22 +195,6 @@ public class MusicController extends MediaController implements PlayerNotificati
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
 
-        switch (eventType) {
-            case TRACK_END:
-                if (!manualSongChange) {
-                    queuePosition++;
-                    playNextSong();
-                }
-                manualSongChange = false;
-                break;
-        }
-
-
-    }
-
-    private void playNextSong() {
-        mPlayer.play(queue.get(queuePosition).tag);
-        mPlayer.getPlayerState(this);
     }
 
     @Override
@@ -146,96 +225,6 @@ public class MusicController extends MediaController implements PlayerNotificati
     @Override
     public void onLoggedOut() {
 
-    }
-
-    public void onDestroy() {
-        Spotify.destroyPlayer(this);
-    }
-
-    public boolean isPlaying() {
-        return mState != null && mState.playing;
-    }
-
-    public void next() {
-        if (queuePosition < queue.size() - 1) {
-            mPlayer.pause();
-            queuePosition++;
-            manualSongChange = true;
-            playNextSong();
-        }
-    }
-
-    public void previous() {
-        mPlayer.pause();
-        queuePosition--;
-        manualSongChange = true;
-        playNextSong();
-    }
-
-    public void pause() {
-        mPlayer.pause();
-        mPlayer.getPlayerState(this);
-    }
-
-    public void start() {
-        mPlayer.resume();
-        mPlayer.getPlayerState(this);
-    }
-
-    @Override
-    public void onPlayerState(PlayerState state) {
-        mState = state;
-        activity.getSeekBar().setMax(state.durationInMs);
-        if (state.playing) {
-            activity.getPlayPauseButton().setImageResource(R.drawable.ic_action_pause);
-            activity.getSongName().setText(queue.get(queuePosition).name);
-            activity.getSongArtist().setText(queue.get(queuePosition).artists[0]);
-        } else {
-            activity.getPlayPauseButton().setImageResource(R.drawable.ic_action_play);
-            activity.getSongName().setText("");
-            activity.getSongArtist().setText("");
-        }
-
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public boolean canPause() {
-        return true;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public int getDuration() {
-        return 0;
-    }
-
-    @Override
-    public void seekTo(int pos) {
-
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
     }
 }
 
