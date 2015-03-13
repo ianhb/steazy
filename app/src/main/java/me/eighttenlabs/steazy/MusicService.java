@@ -15,13 +15,18 @@ import android.util.Log;
 import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.Player;
+import com.spotify.sdk.android.playback.PlayerState;
+import com.spotify.sdk.android.playback.PlayerStateCallback;
 
 import java.util.ArrayList;
 
 /**
  * Created by Ian on 2/28/2015.
  */
-public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
+
+    public static final String SPOTIFY = "spotify";
+    public static final String SOUNDCLOUD = "soundcloud";
 
     private final IBinder musicBind = new MusicBinder();
     private MediaPlayer aPlayer;
@@ -29,15 +34,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private ArrayList<Song> queue;
     private int queuePosition;
     private Song currentSong;
+    private PlayerState state;
 
     public void playSong() {
         Song playSong = queue.get(queuePosition);
         currentSong = playSong;
         switch (playSong.source) {
-            case "spotify":
-
+            case SPOTIFY:
+                sPlayer.play(currentSong.tag);
                 break;
-            case "SoundCloud":
+            case SOUNDCLOUD:
                 aPlayer.reset();
                 try {
                     String redirectSource = new SoundCloudSearch.SoundCloudRedirect(new ApiWrapper(MainActivity.SOUNDCLOUD_CLIENT_ID,
@@ -82,6 +88,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         aPlayer.setOnPreparedListener(this);
         aPlayer.setOnErrorListener(this);
         aPlayer.setOnCompletionListener(this);
+    }
+
+    @Override
+    public void onPlayerState(PlayerState playerState) {
+        state = playerState;
     }
 
     @Override
@@ -130,7 +141,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public int getPosition() {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.getPlayerState(this);
+                return state.positionInMs;
+            case SOUNDCLOUD:
                 return aPlayer.getCurrentPosition();
             default:
                 return 0;
@@ -139,7 +153,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public int getDuration() {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.getPlayerState(this);
+                return state.durationInMs;
+            case SOUNDCLOUD:
                 return aPlayer.getDuration();
             default:
                 return 0;
@@ -148,7 +165,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public boolean isPlaying() {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.getPlayerState(this);
+                return state.playing;
+            case SOUNDCLOUD:
                 return aPlayer.isPlaying();
             default:
                 return false;
@@ -157,21 +177,27 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause() {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.pause();
+            case SOUNDCLOUD:
                 aPlayer.pause();
         }
     }
 
     public void seek(int pos) {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.seekToPosition(pos);
+            case SOUNDCLOUD:
                 aPlayer.seekTo(pos);
         }
     }
 
     public void start() {
         switch (currentSong.source) {
-            case "SoundCloud":
+            case SPOTIFY:
+                sPlayer.resume();
+            case SOUNDCLOUD:
                 aPlayer.start();
                 break;
         }

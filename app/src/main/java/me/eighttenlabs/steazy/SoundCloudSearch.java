@@ -46,7 +46,7 @@ public class SoundCloudSearch extends AsyncTask<String, String, ArrayList<Song>>
                     String[] artist = {song.getString("label_name")};
                     String album = song.getString("description");
 
-                    soundCloudTracks.add(new Song(title, artist, album, source, (tracks.length() - i) / tracks.length(), "SoundCloud"));
+                    soundCloudTracks.add(new Song(title, artist, album, source, (tracks.length() - i) / tracks.length(), MusicService.SOUNDCLOUD));
                 }
             }
         } catch (Exception e) {

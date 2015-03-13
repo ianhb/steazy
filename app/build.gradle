@@ -40,5 +40,5 @@ dependencies {
         exclude module: 'commons-logging'
         exclude module: 'json'
     }
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta6@aar'
+    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta8@aar'
 }

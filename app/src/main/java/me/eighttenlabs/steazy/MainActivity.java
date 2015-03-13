@@ -26,6 +26,7 @@ import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.authentication.SpotifyAuthentication;
 import com.spotify.sdk.android.playback.Config;
+import com.spotify.sdk.android.playback.Player;
 
 import java.util.ArrayList;
 
@@ -96,10 +97,9 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        setController();
     }
 
-    private void setController() {
+    private void setController(Player player) {
         controller = new MusicController(getApplicationContext());
         controller.setController();
         controller.setAnchorView(findViewById(R.id.songs));
@@ -123,7 +123,7 @@ public class MainActivity extends ActionBarActivity {
         registerForContextMenu(songList);
     }
 
-    private ArrayList<Song> searchSongs(String query) {
+    private void searchSongs(String query) {
         ArrayList<Song> spotify = new ArrayList<>();
         ArrayList<Song> soundcloud = new ArrayList<>();
         try {
@@ -132,6 +132,8 @@ public class MainActivity extends ActionBarActivity {
             spotifySearch.execute(query);
             soundCloudSearch.execute(query);
             spotify = spotifySearch.get();
+            webObjects = spotify;
+            setSongList();
             soundcloud = soundCloudSearch.get();
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +145,8 @@ public class MainActivity extends ActionBarActivity {
             returnList.add(soundcloud.get(0));
             soundcloud.remove(0);
         }
-        return returnList;
+        webObjects = returnList;
+        setSongList();
     }
 
     @Override
@@ -155,6 +158,7 @@ public class MainActivity extends ActionBarActivity {
             Config config = new Config(this, authenticationResponse.getAccessToken(), SPOTIFY_CLIENT_ID);
             Spotify spotify = new Spotify();
             controller = new MusicController(this);
+            setController(spotify.getPlayer(config, Mu));
         }
     }
 
@@ -219,8 +223,7 @@ public class MainActivity extends ActionBarActivity {
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                                 try {
-                                    webObjects = searchSongs(box.getText().toString());
-                                    setSongList();
+                                    searchSongs(box.getText().toString());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     return false;
