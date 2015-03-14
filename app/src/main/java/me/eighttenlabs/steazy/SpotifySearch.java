@@ -72,7 +72,7 @@ public class SpotifySearch extends AsyncTask<String, String, ArrayList<Song>> {
                 String[] artistArray = artistList.toArray(new String[artistList.size()]);
                 JSONObject album = entry.getJSONObject("album");
                 songs.add(new Song(entry.getString("name"), artistArray, album.getString("name"),
-                        entry.getString("href"), Float.parseFloat(entry.getString("popularity")), "Spotify"));
+                        entry.getString("href"), Float.parseFloat(entry.getString("popularity")), MusicService.SPOTIFY));
             }
         } catch (JSONException e) {
             e.printStackTrace();

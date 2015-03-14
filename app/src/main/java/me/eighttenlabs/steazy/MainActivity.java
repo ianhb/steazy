@@ -2,9 +2,9 @@ package me.eighttenlabs.steazy;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,8 +23,9 @@ import android.widget.TextView;
 
 import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.Spotify;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.authentication.SpotifyAuthentication;
 import com.spotify.sdk.android.playback.Config;
 import com.spotify.sdk.android.playback.Player;
 
@@ -36,7 +37,9 @@ public class MainActivity extends ActionBarActivity {
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
     public static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
-    private static final String SPOTIFY_SUB_CALLBACK = "spotify-sub://callback";
+    private static final String SPOTIFY_CALLBACK = "spotify-sub://callback";
+    private static final int REQUEST_CODE = 1337;
+
     ArrayList<Song> webObjects;
     private MusicController controller;
     private ArrayList<Song> savedSearch;
@@ -57,7 +60,11 @@ public class MainActivity extends ActionBarActivity {
         ImageButton previousButton;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SpotifyAuthentication.openAuthWindow(SPOTIFY_CLIENT_ID, "token", SPOTIFY_SUB_CALLBACK, new String[]{"user-read-private", "streaming"}, null, this);
+
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
+        builder.setScopes(new String[]{"streaming"});
+        AuthenticationRequest request = builder.build();
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
         wrapper = new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null);
 
@@ -97,9 +104,11 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        setController();
     }
 
-    private void setController(Player player) {
+
+    private void setController() {
         controller = new MusicController(getApplicationContext());
         controller.setController();
         controller.setAnchorView(findViewById(R.id.songs));
@@ -150,16 +159,19 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Uri uri = intent.getData();
-        if (uri != null) {
-            AuthenticationResponse authenticationResponse = SpotifyAuthentication.parseOauthResponse(uri);
-            Config config = new Config(this, authenticationResponse.getAccessToken(), SPOTIFY_CLIENT_ID);
-            Spotify spotify = new Spotify();
-            controller = new MusicController(this);
-            setController(spotify.getPlayer(config, Mu));
+    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        super.onActivityResult(requestCode, responseCode, intent);
+        if (requestCode == REQUEST_CODE) {
+            AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
+            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+                Log.d("Reposne", "Correct");
+                Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
+                Player player = Spotify.getPlayer(playerConfig, controller, controller);
+                controller.onInitialized(player);
+                Log.d("Spotify", "Player initialized");
+            }
         }
+
     }
 
     @Override
@@ -179,10 +191,13 @@ public class MainActivity extends ActionBarActivity {
         if (paused) {
             paused = false;
         }
+
+
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         controller.onDestroy();
     }
 

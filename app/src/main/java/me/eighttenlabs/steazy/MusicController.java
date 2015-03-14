@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.MediaController;
 
+import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.ConnectionStateCallback;
 import com.spotify.sdk.android.playback.Player;
 import com.spotify.sdk.android.playback.PlayerNotificationCallback;
@@ -30,7 +30,6 @@ public class MusicController extends MediaController implements PlayerNotificati
         super(context);
         queue = new ArrayList<>();
         setEnabled(true);
-        Log.d("Controller", "created");
         ServiceConnection musicConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -93,7 +92,7 @@ public class MusicController extends MediaController implements PlayerNotificati
         musicService.setSongs(queue);
         musicService.setQueuePosition(0);
         musicService.playSong();
-        this.show(0);
+
     }
 
     public void setMusicService(MusicService service) {
@@ -108,18 +107,17 @@ public class MusicController extends MediaController implements PlayerNotificati
         playIntent = null;
         musicService.onDestroy();
         musicService = null;
+        Spotify.destroyPlayer(this);
     }
 
     public void next() {
         musicService.playNext();
         setController();
-        this.show(0);
     }
 
     public void previous() {
         musicService.playPrevious();
         setController();
-        this.show(0);
     }
 
     public void pause() {
@@ -178,8 +176,8 @@ public class MusicController extends MediaController implements PlayerNotificati
     }
 
     @Override
-    public void onInitialized() {
-
+    public void onInitialized(Player player) {
+        musicService.setSpotify(player);
     }
 
     @Override
@@ -199,11 +197,6 @@ public class MusicController extends MediaController implements PlayerNotificati
 
     @Override
     public void onConnectionMessage(String s) {
-
-    }
-
-    @Override
-    public void onNewCredentials(String s) {
 
     }
 

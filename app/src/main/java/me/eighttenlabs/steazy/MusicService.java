@@ -42,6 +42,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (playSong.source) {
             case SPOTIFY:
                 sPlayer.play(currentSong.tag);
+                Log.d("Spotify Play", currentSong.name);
                 break;
             case SOUNDCLOUD:
                 aPlayer.reset();
@@ -72,7 +73,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("Service", "created");
         queuePosition = 0;
         initMusicPlayers();
     }
@@ -88,6 +88,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         aPlayer.setOnPreparedListener(this);
         aPlayer.setOnErrorListener(this);
         aPlayer.setOnCompletionListener(this);
+    }
+
+    public void setSpotify(Player player) {
+        sPlayer = player;
     }
 
     @Override
@@ -127,7 +131,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("Service", "bound");
         return musicBind;
     }
 
@@ -143,7 +146,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.getPlayerState(this);
-                return state.positionInMs;
+                if (state != null) {
+                    return state.positionInMs;
+                } else {
+                    return 0;
+                }
             case SOUNDCLOUD:
                 return aPlayer.getCurrentPosition();
             default:
@@ -155,7 +162,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.getPlayerState(this);
-                return state.durationInMs;
+                if (state != null) {
+                    return state.durationInMs;
+                } else {
+                    return 0;
+                }
             case SOUNDCLOUD:
                 return aPlayer.getDuration();
             default:
@@ -167,7 +178,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.getPlayerState(this);
-                return state.playing;
+                if (state != null) {
+                    return state.playing;
+                } else {
+                    return false;
+                }
             case SOUNDCLOUD:
                 return aPlayer.isPlaying();
             default:
@@ -179,8 +194,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.pause();
+                break;
             case SOUNDCLOUD:
                 aPlayer.pause();
+                break;
         }
     }
 
@@ -188,8 +205,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.seekToPosition(pos);
+                break;
             case SOUNDCLOUD:
                 aPlayer.seekTo(pos);
+                break;
         }
     }
 
@@ -197,6 +216,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.resume();
+                break;
             case SOUNDCLOUD:
                 aPlayer.start();
                 break;
