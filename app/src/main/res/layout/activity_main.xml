@@ -21,13 +21,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="1">
 
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
-
         <TextView
             android:id="@+id/song_artist"
             android:layout_width="wrap_content"
@@ -46,25 +39,28 @@
             android:id="@+id/play_pause_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/seekBar"
-            android:layout_centerHorizontal="true" />
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/play_pause_desc" />
 
         <ImageButton
             android:id="@+id/previous_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/seekBar"
+            android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/play_pause_button"
             android:layout_toStartOf="@+id/play_pause_button"
+            android:contentDescription="@string/prev_desc"
             android:src="@drawable/ic_action_previous" />
 
         <ImageButton
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/seekBar"
+            android:layout_alignParentBottom="true"
             android:layout_toEndOf="@+id/play_pause_button"
             android:layout_toRightOf="@+id/play_pause_button"
+            android:contentDescription="@string/next_desc"
             android:src="@drawable/ic_action_next" />
 
     </RelativeLayout>

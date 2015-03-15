@@ -3,5 +3,8 @@
 
     <string name="app_name">Steazy</string>
     <string name="action_settings">Settings</string>
+    <string name="play_pause_desc">Play/Pause</string>
+    <string name="next_desc">Next</string>
+    <string name="prev_desc">Previous</string>
 
 </resources>

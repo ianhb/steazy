@@ -28,6 +28,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public static final String SPOTIFY = "spotify";
     public static final String SOUNDCLOUD = "soundcloud";
+    public static final String PAUSEPLAY = "Pause_Play";
+    public static final String NEXT = "Next";
+    public static final String PREVIOUS = "Previous";
 
     private final IBinder musicBind = new MusicBinder();
     private MediaPlayer aPlayer;
@@ -49,19 +52,41 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 sPlayer.play(currentSong.tag);
                 Log.d("Spotify Play", currentSong.name);
                 sPlayer.getPlayerState(this);
-                if (Build.VERSION.SDK_INT > 15) {
-                    Intent notIntent = new Intent(this, MainActivity.class);
-                    notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    Notification.Builder builder = new Notification.Builder(this);
-                    builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name).setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name);
-                    Notification not = builder.build();
-                    startForeground(1, not);
-                }
+                makeNotification();
                 break;
             case SOUNDCLOUD:
                 playSoundCloudSong();
                 break;
+        }
+    }
+
+    private void makeNotification() {
+        if (Build.VERSION.SDK_INT > 15) {
+            Intent notIntent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Intent pauseIntent = new Intent(this, MusicService.class);
+            pauseIntent.setAction(PAUSEPLAY);
+            PendingIntent piPause = PendingIntent.getService(this, 0, pauseIntent, 0);
+
+            Intent nextIntent = new Intent(this, MusicService.class);
+            pauseIntent.setAction(NEXT);
+            PendingIntent piNext = PendingIntent.getService(this, 0, nextIntent, 0);
+
+            Intent prevIntent = new Intent(this, MusicService.class);
+            pauseIntent.setAction(PREVIOUS);
+            PendingIntent piPrev = PendingIntent.getService(this, 0, prevIntent, 0);
+
+
+            Notification.Builder builder = new Notification.Builder(this);
+            builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name)
+                    .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(""))
+            //.addAction(R.drawable.ic_action_previous, "", piPrev)
+            //.addAction(R.drawable.ic_action_pause, "", piPause)
+            //.addAction(R.drawable.ic_action_next,"", piNext)
+            ;
+            Notification not = builder.build();
+            startForeground(1, not);
         }
     }
 
@@ -95,6 +120,25 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         initMusicPlayers();
     }
 
+    protected void onHandleIntent(Intent intent) {
+        String action = intent.getAction();
+        switch (action) {
+            case PAUSEPLAY:
+                if (isPlaying()) {
+                    pause();
+                } else {
+                    start();
+                }
+                break;
+            case NEXT:
+                playNext();
+                break;
+            case PREVIOUS:
+                playPrevious();
+                break;
+        }
+    }
+
     public void setSongs(ArrayList<Song> queue) {
         this.queue = queue;
     }
@@ -115,6 +159,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPlayerState(PlayerState playerState) {
         state = playerState;
+        Log.d("Spotify", "Callback state");
+        Log.d("Spotify", String.valueOf(state.playing));
     }
 
     @Override
@@ -139,15 +185,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             pause();
         }
         mp.start();
-        if (Build.VERSION.SDK_INT > 15) {
-            Intent notIntent = new Intent(this, MainActivity.class);
-            notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            Notification.Builder builder = new Notification.Builder(this);
-            builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name).setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name);
-            Notification not = builder.build();
-            startForeground(1, not);
-        }
+        makeNotification();
     }
 
     @Override
@@ -202,7 +240,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause() {
         sPlayer.pause();
-        aPlayer.pause();
+        if (aPlayer.isPlaying()) {
+            aPlayer.pause();
+        }
     }
 
     public void seek(int pos) {

@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.soundcloud.api.ApiWrapper;
@@ -50,7 +49,6 @@ public class MainActivity extends ActionBarActivity {
     private ImageButton playPauseButton;
     private TextView songName;
     private TextView songArtist;
-    private SeekBar seekBar;
 
 
     @Override
@@ -74,7 +72,6 @@ public class MainActivity extends ActionBarActivity {
         playPauseButton = (ImageButton) findViewById(R.id.play_pause_button);
         songName = (TextView) findViewById(R.id.song_title);
         songArtist = (TextView) findViewById(R.id.song_artist);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
 
         playPauseButton.setImageResource(R.drawable.ic_action_play);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -82,8 +79,10 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (controller.isPlaying()) {
                     controller.pause();
+                    playPauseButton.setImageResource(R.drawable.ic_action_play);
                 } else {
                     controller.start();
+                    playPauseButton.setImageResource(R.drawable.ic_action_pause);
                 }
             }
         });
@@ -113,8 +112,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void songPicked(View view) {
-        Song object = songs.get(Integer.parseInt(view.getTag().toString()));
-        controller.play(object);
+        Song song = songs.get(Integer.parseInt(view.getTag().toString()));
+        controller.play(song);
+        songName.setText(song.name);
+        songArtist.setText(song.artists[0]);
+        playPauseButton.setImageResource(R.drawable.ic_action_pause);
+
     }
 
     public void setSongList() {
