@@ -1,5 +1,6 @@
 package me.eighttenlabs.steazy;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -24,9 +25,19 @@ public class SoundCloud {
     public static class SoundCloudSearch extends AsyncTask<String, String, ArrayList<Song>> {
 
         private ApiWrapper wrapper;
+        private ProgressDialog dialog;
+        private MainActivity activity;
 
-        public SoundCloudSearch(ApiWrapper wrapper) {
+        public SoundCloudSearch(ApiWrapper wrapper, MainActivity activity) {
             this.wrapper = wrapper;
+            dialog = new ProgressDialog(activity);
+            this.activity = activity;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Searching the Cloud for Songs");
+            dialog.show();
         }
 
         @Override
@@ -55,6 +66,12 @@ public class SoundCloud {
                 e.printStackTrace();
             }
             return soundCloudTracks;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Song> songs) {
+            activity.searchCallback(songs);
+            dialog.dismiss();
         }
     }
 

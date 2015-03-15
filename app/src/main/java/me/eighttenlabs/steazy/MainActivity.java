@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -40,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String SPOTIFY_CALLBACK = "spotify-sub://callback";
     private static final int REQUEST_CODE = 1337;
 
-    ArrayList<Song> webObjects;
+    ArrayList<Song> songs;
     private MusicController controller;
     private ArrayList<Song> savedSearch;
     private boolean paused = false;
@@ -68,7 +67,7 @@ public class MainActivity extends ActionBarActivity {
 
         wrapper = new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null);
 
-        webObjects = new ArrayList<>();
+        songs = new ArrayList<>();
 
         skipButton = (ImageButton) findViewById(R.id.next_button);
         previousButton = (ImageButton) findViewById(R.id.previous_button);
@@ -114,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void songPicked(View view) {
-        Song object = webObjects.get(Integer.parseInt(view.getTag().toString()));
+        Song object = songs.get(Integer.parseInt(view.getTag().toString()));
         controller.play(object);
     }
 
@@ -126,39 +125,41 @@ public class MainActivity extends ActionBarActivity {
                 songPicked(view);
             }
         });
-        Adapter adapter = new Adapter(getApplicationContext(), webObjects);
+        Adapter adapter = new Adapter(getApplicationContext(), songs);
         songList.setAdapter(adapter);
         registerForContextMenu(songList);
     }
 
+    public void searchCallback(ArrayList<Song> searchedSongs) {
+        if (songs.isEmpty()) {
+            songs = searchedSongs;
+        } else {
+            ArrayList<Song> returnList = new ArrayList<>();
+            while ((!songs.isEmpty() || !searchedSongs.isEmpty()) && returnList.size() < 40) {
+                if (!songs.isEmpty()) {
+                    returnList.add(songs.get(0));
+                    songs.remove(0);
+                }
+                if (!searchedSongs.isEmpty()) {
+                    returnList.add(searchedSongs.get(0));
+                    searchedSongs.remove(0);
+                }
+            }
+            songs = returnList;
+        }
+        setSongList();
+    }
+
     private void searchSongs(String query) {
-        ArrayList<Song> spotify = new ArrayList<>();
-        ArrayList<Song> soundcloud = new ArrayList<>();
         try {
-            me.eighttenlabs.steazy.Spotify.Search spotifySearch = new me.eighttenlabs.steazy.Spotify.Search();
-            SoundCloud.SoundCloudSearch soundCloudSearch = new SoundCloud.SoundCloudSearch(wrapper);
+            me.eighttenlabs.steazy.Spotify.Search spotifySearch = new me.eighttenlabs.steazy.Spotify.Search(this);
+            SoundCloud.SoundCloudSearch soundCloudSearch = new SoundCloud.SoundCloudSearch(wrapper, this);
             spotifySearch.execute(query);
             soundCloudSearch.execute(query);
-            spotify = spotifySearch.get();
-            webObjects = spotify;
-            setSongList();
-            soundcloud = soundCloudSearch.get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ArrayList<Song> returnList = new ArrayList<>();
-        while ((!spotify.isEmpty() || !soundcloud.isEmpty()) && returnList.size() < 40) {
-            if (!spotify.isEmpty()) {
-                returnList.add(spotify.get(0));
-                spotify.remove(0);
-            }
-            if (!soundcloud.isEmpty()) {
-                returnList.add(soundcloud.get(0));
-                soundcloud.remove(0);
-            }
-        }
-        webObjects = returnList;
-        setSongList();
+
     }
 
     @Override
@@ -167,11 +168,9 @@ public class MainActivity extends ActionBarActivity {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Log.d("Reposne", "Correct");
                 Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
                 Player player = Spotify.getPlayer(playerConfig, controller, controller);
                 controller.onInitialized(player);
-                Log.d("Spotify", "Player initialized");
             }
         }
 
@@ -233,7 +232,7 @@ public class MainActivity extends ActionBarActivity {
                     final EditText box = ((EditText) getSupportActionBar().getCustomView().findViewById(R.id.search_box));
                     box.requestFocus();
                     box.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-                    InputMethodManager imm = (InputMethodManager) getSystemService(
+                    final InputMethodManager imm = (InputMethodManager) getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(box, 0);
                     box.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -242,6 +241,7 @@ public class MainActivity extends ActionBarActivity {
                             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                                 try {
                                     searchSongs(box.getText().toString());
+                                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     return false;
@@ -254,10 +254,10 @@ public class MainActivity extends ActionBarActivity {
                 break;
             case R.id.action_show_queue:
                 if (savedSearch == null) {
-                    savedSearch = webObjects;
-                    webObjects = controller.getQueue();
+                    savedSearch = songs;
+                    songs = controller.getQueue();
                 } else {
-                    webObjects = savedSearch;
+                    songs = savedSearch;
                     savedSearch = null;
                 }
                 setSongList();
@@ -276,7 +276,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Song object = webObjects.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        Song object = songs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         switch (item.getItemId()) {
             case R.id.play_song:
                 controller.play(object);
@@ -287,21 +287,5 @@ public class MainActivity extends ActionBarActivity {
             default:
                 return super.onContextItemSelected(item);
         }
-    }
-
-    public SeekBar getSeekBar() {
-        return seekBar;
-    }
-
-    public ImageButton getPlayPauseButton() {
-        return playPauseButton;
-    }
-
-    public TextView getSongName() {
-        return songName;
-    }
-
-    public TextView getSongArtist() {
-        return songArtist;
     }
 }
