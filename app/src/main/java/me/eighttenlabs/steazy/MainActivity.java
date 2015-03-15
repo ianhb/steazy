@@ -83,8 +83,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (controller.isPlaying()) {
                     controller.pause();
-                }
-                if (!controller.isPlaying()) {
+                } else {
                     controller.start();
                 }
             }
@@ -136,8 +135,8 @@ public class MainActivity extends ActionBarActivity {
         ArrayList<Song> spotify = new ArrayList<>();
         ArrayList<Song> soundcloud = new ArrayList<>();
         try {
-            SpotifySearch spotifySearch = new SpotifySearch();
-            SoundCloudSearch soundCloudSearch = new SoundCloudSearch(wrapper);
+            me.eighttenlabs.steazy.Spotify.Search spotifySearch = new me.eighttenlabs.steazy.Spotify.Search();
+            SoundCloud.SoundCloudSearch soundCloudSearch = new SoundCloud.SoundCloudSearch(wrapper);
             spotifySearch.execute(query);
             soundCloudSearch.execute(query);
             spotify = spotifySearch.get();
@@ -148,11 +147,15 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
         ArrayList<Song> returnList = new ArrayList<>();
-        while (!spotify.isEmpty() && !soundcloud.isEmpty()) {
-            returnList.add(spotify.get(0));
-            spotify.remove(0);
-            returnList.add(soundcloud.get(0));
-            soundcloud.remove(0);
+        while ((!spotify.isEmpty() || !soundcloud.isEmpty()) && returnList.size() < 40) {
+            if (!spotify.isEmpty()) {
+                returnList.add(spotify.get(0));
+                spotify.remove(0);
+            }
+            if (!soundcloud.isEmpty()) {
+                returnList.add(soundcloud.get(0));
+                soundcloud.remove(0);
+            }
         }
         webObjects = returnList;
         setSongList();

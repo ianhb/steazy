@@ -12,7 +12,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.Player;
 import com.spotify.sdk.android.playback.PlayerState;
@@ -21,6 +20,8 @@ import com.spotify.sdk.android.playback.PlayerStateCallback;
 import java.util.ArrayList;
 
 /**
+ * Music playing service
+ *
  * Created by Ian on 2/28/2015.
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
@@ -37,26 +38,43 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PlayerState state;
 
     public void playSong() {
+        Log.d("Playing", String.valueOf(isPlaying()));
         Song playSong = queue.get(queuePosition);
         currentSong = playSong;
         switch (playSong.source) {
             case SPOTIFY:
+                if (isPlaying()) {
+                    pause();
+                }
                 sPlayer.play(currentSong.tag);
                 Log.d("Spotify Play", currentSong.name);
-                break;
-            case SOUNDCLOUD:
-                aPlayer.reset();
-                try {
-                    String redirectSource = new SoundCloudSearch.SoundCloudRedirect(new ApiWrapper(MainActivity.SOUNDCLOUD_CLIENT_ID,
-                            MainActivity.SOUNDCLOUD_PRIVATE_ID, null, null)).execute(currentSong.tag).get() + "?client_id=" + MainActivity.SOUNDCLOUD_CLIENT_ID;
-                    aPlayer.setDataSource(redirectSource);
-                    Log.d("Stream", redirectSource);
-                    currentSong = playSong;
-                    aPlayer.prepareAsync();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                sPlayer.getPlayerState(this);
+                if (Build.VERSION.SDK_INT > 15) {
+                    Intent notIntent = new Intent(this, MainActivity.class);
+                    notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    Notification.Builder builder = new Notification.Builder(this);
+                    builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name).setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name);
+                    Notification not = builder.build();
+                    startForeground(1, not);
                 }
                 break;
+            case SOUNDCLOUD:
+                playSoundCloudSong();
+                break;
+        }
+    }
+
+    private void playSoundCloudSong() {
+        aPlayer.reset();
+        try {
+            Log.d("Soundcloud", currentSong.tag);
+            currentSong.tag = new SoundCloud.Redirect().execute(currentSong.tag).get();
+            Log.d("Soundcloud", currentSong.tag);
+            aPlayer.setDataSource(currentSong.tag);
+            aPlayer.prepareAsync();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -117,6 +135,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        if (isPlaying()) {
+            pause();
+        }
         mp.start();
         if (Build.VERSION.SDK_INT > 15) {
             Intent notIntent = new Intent(this, MainActivity.class);
@@ -175,30 +196,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public boolean isPlaying() {
-        switch (currentSong.source) {
-            case SPOTIFY:
-                sPlayer.getPlayerState(this);
-                if (state != null) {
-                    return state.playing;
-                } else {
-                    return false;
-                }
-            case SOUNDCLOUD:
-                return aPlayer.isPlaying();
-            default:
-                return false;
-        }
+        sPlayer.getPlayerState(this);
+        return (state != null && state.playing) || aPlayer.isPlaying();
     }
 
     public void pause() {
-        switch (currentSong.source) {
-            case SPOTIFY:
-                sPlayer.pause();
-                break;
-            case SOUNDCLOUD:
-                aPlayer.pause();
-                break;
-        }
+        sPlayer.pause();
+        aPlayer.pause();
     }
 
     public void seek(int pos) {
