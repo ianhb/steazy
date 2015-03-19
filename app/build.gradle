@@ -1,9 +1,22 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            keyAlias '810Labs'
+            keyPassword System.getenv("KEYPWD")
+            storeFile file('C:/Users/Ian/AndroidStudioProjects/Keystore/810keys.jks')
+            storePassword System.getenv("KSTOREPWD")
+        }
+        release {
+            keyAlias 'ian'
+            keyPassword System.getenv("KEYPWD")
+            storeFile file('C:/Users/Ian/AndroidStudioProjects/Keystore/810labskey.jks')
+            storePassword System.getenv("KSTOREPWD")
+        }
+    }
     compileSdkVersion 21
     buildToolsVersion "20.0.0"
-
     defaultConfig {
         applicationId "me.eighttenlabs.steazy"
         minSdkVersion 15
@@ -17,7 +30,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     repositories {
         mavenCentral()
         flatDir {
@@ -29,11 +41,10 @@ android {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
     }
-
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile('com.soundcloud:java-api-wrapper:1.3.1') {
         exclude module: 'httpclient'
