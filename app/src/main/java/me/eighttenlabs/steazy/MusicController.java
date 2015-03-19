@@ -39,7 +39,6 @@ public class MusicController extends MediaController implements PlayerNotificati
                 setMusicService(musicService);
                 setMusicBound(true);
             }
-
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 setMusicService(null);
@@ -49,7 +48,10 @@ public class MusicController extends MediaController implements PlayerNotificati
         playIntent = new Intent(context, MusicService.class);
         context.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         context.startService(playIntent);
+    }
 
+    public void setServiceActivity(MainActivity activity) {
+        musicService.activity = activity;
     }
 
     public void setController() {
@@ -86,13 +88,17 @@ public class MusicController extends MediaController implements PlayerNotificati
         return (musicService != null && musicBound && musicService.isPlaying());
     }
 
-    public void play(Song song) {
-        queue = new ArrayList<>();
-        queue.add(song);
-        musicService.setSongs(queue);
-        musicService.setQueuePosition(0);
-        musicService.playSong();
-
+    public void play(Song song, boolean songQueued) {
+        if (songQueued) {
+            musicService.setQueuePosition(queue.indexOf(song));
+            musicService.playSong();
+        } else {
+            queue = new ArrayList<>();
+            queue.add(song);
+            musicService.setSongs(queue);
+            musicService.setQueuePosition(0);
+            musicService.playSong();
+        }
     }
 
     public void setMusicService(MusicService service) {
@@ -178,6 +184,7 @@ public class MusicController extends MediaController implements PlayerNotificati
     @Override
     public void onInitialized(Player player) {
         musicService.setSpotify(player);
+        player.addPlayerNotificationCallback(this);
     }
 
     @Override
@@ -192,7 +199,10 @@ public class MusicController extends MediaController implements PlayerNotificati
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-
+        if (eventType == EventType.TRACK_END && !musicService.userSkip) {
+            next();
+        }
+        musicService.userSkip = false;
     }
 
     @Override

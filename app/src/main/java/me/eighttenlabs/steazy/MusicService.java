@@ -33,6 +33,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public static final String PREVIOUS = "Previous";
 
     private final IBinder musicBind = new MusicBinder();
+    public boolean userSkip;
+    public MainActivity activity;
     private MediaPlayer aPlayer;
     private Player sPlayer;
     private ArrayList<Song> queue;
@@ -58,6 +60,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 playSoundCloudSong();
                 break;
         }
+        activity.onSongChanged(currentSong);
     }
 
     private void makeNotification() {
@@ -80,7 +83,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
             Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name)
-                    .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(""))
+                    .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name))
             //.addAction(R.drawable.ic_action_previous, "", piPrev)
             //.addAction(R.drawable.ic_action_pause, "", piPause)
             //.addAction(R.drawable.ic_action_next,"", piNext)
@@ -118,6 +121,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         super.onCreate();
         queuePosition = 0;
         initMusicPlayers();
+        userSkip = false;
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -272,6 +276,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (queuePosition < 0) {
             queuePosition = queue.size() - 1;
         }
+        userSkip = true;
         playSong();
     }
 
@@ -280,6 +285,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (queuePosition >= queue.size()) {
             queuePosition = 0;
         }
+        userSkip = true;
         playSong();
     }
 

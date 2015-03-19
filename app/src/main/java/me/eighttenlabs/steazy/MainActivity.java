@@ -106,18 +106,14 @@ public class MainActivity extends ActionBarActivity {
 
 
     private void setController() {
-        controller = new MusicController(getApplicationContext());
+        controller = new MusicController(this);
         controller.setController();
         controller.setAnchorView(findViewById(R.id.songs));
     }
 
     public void songPicked(View view) {
         Song song = songs.get(Integer.parseInt(view.getTag().toString()));
-        controller.play(song);
-        songName.setText(song.name);
-        songArtist.setText(song.artists[0]);
-        playPauseButton.setImageResource(R.drawable.ic_action_pause);
-
+        controller.play(song, savedSearch != null);
     }
 
     public void setSongList() {
@@ -155,6 +151,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void searchSongs(String query) {
         try {
+            songs = new ArrayList<>();
             me.eighttenlabs.steazy.Spotify.Search spotifySearch = new me.eighttenlabs.steazy.Spotify.Search(this);
             SoundCloud.SoundCloudSearch soundCloudSearch = new SoundCloud.SoundCloudSearch(wrapper, this);
             spotifySearch.execute(query);
@@ -174,6 +171,7 @@ public class MainActivity extends ActionBarActivity {
                 Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
                 Player player = Spotify.getPlayer(playerConfig, controller, controller);
                 controller.onInitialized(player);
+                controller.setServiceActivity(this);
             }
         }
 
@@ -196,8 +194,12 @@ public class MainActivity extends ActionBarActivity {
         if (paused) {
             paused = false;
         }
+    }
 
-
+    public void onSongChanged(Song song) {
+        songName.setText(song.name);
+        songArtist.setText(song.artists[0]);
+        playPauseButton.setImageResource(R.drawable.ic_action_pause);
     }
 
     @Override
@@ -282,7 +284,7 @@ public class MainActivity extends ActionBarActivity {
         Song object = songs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         switch (item.getItemId()) {
             case R.id.play_song:
-                controller.play(object);
+                controller.play(object, savedSearch != null);
                 return true;
             case R.id.queue_song:
                 controller.queue(object);
