@@ -92,12 +92,14 @@ public class MusicController extends MediaController implements PlayerNotificati
         if (songQueued) {
             musicService.setQueuePosition(queue.indexOf(song));
             musicService.playSong();
+            musicService.userSkip = true;
         } else {
             queue = new ArrayList<>();
             queue.add(song);
             musicService.setSongs(queue);
             musicService.setQueuePosition(0);
             musicService.playSong();
+            musicService.userSkip = true;
         }
     }
 

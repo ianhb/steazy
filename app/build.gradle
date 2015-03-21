@@ -2,12 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        debug {
-            keyAlias '810Labs'
-            keyPassword System.getenv("KEYPWD")
-            storeFile file('C:/Users/Ian/AndroidStudioProjects/Keystore/810keys.jks')
-            storePassword System.getenv("KSTOREPWD")
-        }
         release {
             keyAlias 'ian'
             keyPassword System.getenv("KEYPWD")

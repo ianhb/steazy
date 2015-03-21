@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
     public static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
-    private static final String SPOTIFY_CALLBACK = "spotify-sub://callback";
+    private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
 
     ArrayList<Song> songs;
@@ -77,6 +77,9 @@ public class MainActivity extends ActionBarActivity {
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (controller.getQueue().isEmpty()) {
+                    return;
+                }
                 if (controller.isPlaying()) {
                     controller.pause();
                     playPauseButton.setImageResource(R.drawable.ic_action_play);
@@ -174,7 +177,6 @@ public class MainActivity extends ActionBarActivity {
                 controller.setServiceActivity(this);
             }
         }
-
     }
 
     @Override

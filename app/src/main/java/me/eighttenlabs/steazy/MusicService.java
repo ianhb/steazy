@@ -82,7 +82,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
 
             Notification.Builder builder = new Notification.Builder(this);
-            builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_action_play).setTicker(currentSong.name)
+            builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
                     .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name))
             //.addAction(R.drawable.ic_action_previous, "", piPrev)
             //.addAction(R.drawable.ic_action_pause, "", piPause)
