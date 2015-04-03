@@ -2,7 +2,6 @@ package me.eighttenlabs.steazy;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Request;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 
 /**
  * Class to hold all functions related to Soundcloud
- *
+ * <p/>
  * Created by Ian on 2/11/2015.
  */
 public class SoundCloud {
@@ -44,7 +43,6 @@ public class SoundCloud {
         protected ArrayList<Song> doInBackground(String... params) {
             ArrayList<Song> soundCloudTracks = new ArrayList<>();
             try {
-                Log.d("request", params[0]);
                 Request request = Request.to("/tracks");
                 request.add("q", params[0]);
                 request.add("order", "hotness");

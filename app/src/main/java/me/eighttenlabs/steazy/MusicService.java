@@ -10,7 +10,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
 
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.playback.Player;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 
 /**
  * Music playing service
- *
+ * <p/>
  * Created by Ian on 2/28/2015.
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
@@ -43,7 +42,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PlayerState state;
 
     public void playSong() {
-        Log.d("Playing", String.valueOf(isPlaying()));
         Song playSong = queue.get(queuePosition);
         currentSong = playSong;
         switch (playSong.source) {
@@ -52,7 +50,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     pause();
                 }
                 sPlayer.play(currentSong.tag);
-                Log.d("Spotify Play", currentSong.name);
                 sPlayer.getPlayerState(this);
                 makeNotification();
                 break;
@@ -96,9 +93,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private void playSoundCloudSong() {
         aPlayer.reset();
         try {
-            Log.d("Soundcloud", currentSong.tag);
             currentSong.tag = new SoundCloud.Redirect().execute(currentSong.tag).get();
-            Log.d("Soundcloud", currentSong.tag);
             aPlayer.setDataSource(currentSong.tag);
             aPlayer.prepareAsync();
         } catch (Exception e) {
@@ -163,15 +158,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPlayerState(PlayerState playerState) {
         state = playerState;
-        Log.d("Spotify", "Callback state");
-        Log.d("Spotify", String.valueOf(state.playing));
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         mp.reset();
-        Log.d("what", String.valueOf(what));
-        Log.d("extra", String.valueOf(extra));
         return false;
     }
 
