@@ -3,6 +3,7 @@ package me.eighttenlabs.steazy;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -40,8 +41,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private int queuePosition;
     private Song currentSong;
     private PlayerState state;
+    private AudioManager am;
+    private AudioManager.OnAudioFocusChangeListener af;
 
     public void playSong() {
+
+        pauseSystemPlayback();
+
         Song playSong = queue.get(queuePosition);
         currentSong = playSong;
         switch (playSong.source) {
@@ -58,6 +64,24 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 break;
         }
         activity.onSongChanged(currentSong);
+    }
+
+    private void pauseSystemPlayback() {
+        af = new AudioManager.OnAudioFocusChangeListener() {
+            @Override
+            public void onAudioFocusChange(int focusChange) {
+                if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                    pause();
+                } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                    am.abandonAudioFocus(af);
+                    pause();
+                }
+            }
+        };
+
+        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int request = am.requestAudioFocus(af, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
     }
 
     private void makeNotification() {
@@ -104,6 +128,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onDestroy() {
         stopForeground(true);
+        am.abandonAudioFocus(af);
         super.onDestroy();
     }
 
@@ -238,6 +263,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (aPlayer.isPlaying()) {
             aPlayer.pause();
         }
+        am.abandonAudioFocus(af);
     }
 
     public void seek(int pos) {
