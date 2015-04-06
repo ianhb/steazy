@@ -1,6 +1,7 @@
 package me.eighttenlabs.steazy;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -43,6 +44,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PlayerState state;
     private AudioManager am;
     private AudioManager.OnAudioFocusChangeListener af;
+    private Notification notification;
 
     public void playSong() {
 
@@ -109,8 +111,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             //.addAction(R.drawable.ic_action_pause, "", piPause)
             //.addAction(R.drawable.ic_action_next,"", piNext)
             ;
-            Notification not = builder.build();
-            startForeground(1, not);
+            notification = builder.build();
+            startForeground(1, notification);
         }
     }
 
@@ -264,6 +266,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             aPlayer.pause();
         }
         am.abandonAudioFocus(af);
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
     public void seek(int pos) {
