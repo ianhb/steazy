@@ -2,6 +2,7 @@ package me.eighttenlabs.steazy;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
@@ -45,6 +46,7 @@ public class MainActivity extends ActionBarActivity {
 
     private ApiWrapper wrapper;
 
+    private SharedPreferences preferences;
 
     private ImageButton playPauseButton;
     private TextView songName;
@@ -269,6 +271,9 @@ public class MainActivity extends ActionBarActivity {
                 }
                 setSongList();
                 break;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
