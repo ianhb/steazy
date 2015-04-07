@@ -3,15 +3,8 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="me.eighttenlabs.steazy.SettingsActivity$GeneralPreferenceFragment"
-        android:title="@string/pref_header_general" />
+        android:fragment="me.eighttenlabs.steazy.SettingsActivity$AccountFragment"
+        android:title="@string/pref_account_title" />
 
-    <header
-        android:fragment="me.eighttenlabs.steazy.SettingsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications" />
-
-    <header
-        android:fragment="me.eighttenlabs.steazy.SettingsActivity$DataSyncPreferenceFragment"
-        android:title="@string/pref_header_data_sync" />
 
 </preference-headers>
