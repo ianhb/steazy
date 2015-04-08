@@ -5,6 +5,10 @@
     <string name="play_pause_desc">Play/Pause</string>
     <string name="next_desc">Next</string>
     <string name="prev_desc">Previous</string>
+    <string name="title_activity_create_account">CreateAccountActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 
 </resources>

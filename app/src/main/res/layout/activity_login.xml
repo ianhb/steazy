@@ -30,12 +30,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                style="?android:textAppearanceLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:text="@string/login_title"
+                android:textStyle="bold" />
+
             <AutoCompleteTextView
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_email"
-                android:inputType="textEmailAddress"
+                android:hint="@string/prompt_username"
+                android:inputType="text"
                 android:maxLines="1"
                 android:singleLine="true" />
 
@@ -58,6 +67,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/action_create_account"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/action_create_account"
                 android:textStyle="bold" />
 
         </LinearLayout>
