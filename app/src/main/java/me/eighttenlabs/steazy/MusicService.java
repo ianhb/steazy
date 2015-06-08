@@ -13,10 +13,10 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.Player;
-import com.spotify.sdk.android.playback.PlayerState;
-import com.spotify.sdk.android.playback.PlayerStateCallback;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
+import com.spotify.sdk.android.player.Spotify;
 
 import java.util.ArrayList;
 
@@ -27,8 +27,8 @@ import java.util.ArrayList;
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
 
-    public static final String SPOTIFY = "spotify";
-    public static final String SOUNDCLOUD = "soundcloud";
+    public static final String SPOTIFY = "Spotify";
+    public static final String SOUNDCLOUD = "Soundcloud";
     public static final String PAUSEPLAY = "Pause_Play";
     public static final String NEXT = "Next";
     public static final String PREVIOUS = "Previous";
@@ -107,9 +107,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
                     .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name))
-            //.addAction(R.drawable.ic_action_previous, "", piPrev)
-            //.addAction(R.drawable.ic_action_pause, "", piPause)
-            //.addAction(R.drawable.ic_action_next,"", piNext)
             ;
             notification = builder.build();
             startForeground(1, notification);

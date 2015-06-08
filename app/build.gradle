@@ -38,14 +38,16 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile('com.soundcloud:java-api-wrapper:1.3.1') {
         exclude module: 'httpclient'
         exclude module: 'commons-logging'
         exclude module: 'json'
     }
     compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta8@aar'
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta10@aar'
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta10@aar'
     compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.android.support:support-v4:22.0.0'
+    compile 'eu.the4thfloor.volley:com.android.volley:2015.05.28'
 }

@@ -8,11 +8,11 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.MediaController;
 
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.ConnectionStateCallback;
-import com.spotify.sdk.android.playback.Player;
-import com.spotify.sdk.android.playback.PlayerNotificationCallback;
-import com.spotify.sdk.android.playback.PlayerState;
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerNotificationCallback;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.Spotify;
 
 import java.util.ArrayList;
 
@@ -195,31 +195,16 @@ public class MusicController extends MediaController implements PlayerNotificati
     }
 
     @Override
-    public void onPlaybackError(ErrorType errorType, String s) {
+    public void onPlaybackError(PlayerNotificationCallback.ErrorType errorType, String s) {
 
     }
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        if (eventType == EventType.TRACK_END && !musicService.userSkip) {
+        if (eventType == EventType.TRACK_CHANGED && !musicService.userSkip) {
             next();
         }
         musicService.userSkip = false;
-    }
-
-    @Override
-    public void onConnectionMessage(String s) {
-
-    }
-
-    @Override
-    public void onTemporaryError() {
-
-    }
-
-    @Override
-    public void onLoginFailed(Throwable throwable) {
-
     }
 
     @Override
@@ -229,6 +214,21 @@ public class MusicController extends MediaController implements PlayerNotificati
 
     @Override
     public void onLoggedOut() {
+
+    }
+
+    @Override
+    public void onLoginFailed(Throwable throwable) {
+
+    }
+
+    @Override
+    public void onTemporaryError() {
+
+    }
+
+    @Override
+    public void onConnectionMessage(String s) {
 
     }
 }

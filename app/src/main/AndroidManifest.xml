@@ -32,17 +32,6 @@
         <service
             android:name=".MusicService"
             android:enabled="true" />
-
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible">
-            <intent-filter>
-                <action android:name="me.eighttenlabs.steazy.LoginActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -51,14 +40,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="me.eighttenlabs.steazy.MainActivity" />
         </activity>
-        <activity
-            android:name=".CreateAccountActivity"
-            android:label="@string/title_activity_create_account"
-            android:parentActivityName=".LoginActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="me.eighttenlabs.steazy.LoginActivity" />
-        </activity>
+
     </application>
 
 </manifest>

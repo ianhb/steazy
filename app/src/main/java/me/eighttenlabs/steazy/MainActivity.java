@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -20,15 +21,25 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.soundcloud.api.ApiWrapper;
-import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.playback.Config;
-import com.spotify.sdk.android.playback.Player;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
+
+import static me.eighttenlabs.steazy.Song.songFromJSON;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -38,6 +49,8 @@ public class MainActivity extends ActionBarActivity {
     public static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
     private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
+
+    private static final String URL = "http://192.168.0.183:8000";
 
     ArrayList<Song> songs;
     private MusicController controller;
@@ -119,6 +132,7 @@ public class MainActivity extends ActionBarActivity {
     public void songPicked(View view) {
         Song song = songs.get(Integer.parseInt(view.getTag().toString()));
         controller.play(song, savedSearch != null);
+        Log.d("source", song.source);
     }
 
     public void setSongList() {
@@ -154,19 +168,6 @@ public class MainActivity extends ActionBarActivity {
         setSongList();
     }
 
-    private void searchSongs(String query) {
-        try {
-            songs = new ArrayList<>();
-            me.eighttenlabs.steazy.Spotify.Search spotifySearch = new me.eighttenlabs.steazy.Spotify.Search(this);
-            SoundCloud.SoundCloudSearch soundCloudSearch = new SoundCloud.SoundCloudSearch(wrapper, this);
-            spotifySearch.execute(query);
-            soundCloudSearch.execute(query);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         super.onActivityResult(requestCode, responseCode, intent);
@@ -179,6 +180,12 @@ public class MainActivity extends ActionBarActivity {
                 controller.setServiceActivity(this);
             }
         }
+    }
+
+    public void onSongChanged(Song song) {
+        songName.setText(song.name);
+        songArtist.setText(song.artists[0]);
+        playPauseButton.setImageResource(R.drawable.ic_action_pause);
     }
 
     @Override
@@ -198,12 +205,6 @@ public class MainActivity extends ActionBarActivity {
         if (paused) {
             paused = false;
         }
-    }
-
-    public void onSongChanged(Song song) {
-        songName.setText(song.name);
-        songArtist.setText(song.artists[0]);
-        playPauseButton.setImageResource(R.drawable.ic_action_pause);
     }
 
     @Override
@@ -299,5 +300,30 @@ public class MainActivity extends ActionBarActivity {
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    public void searchSongs(String query) {
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, URL + "/songs/.json?query=" + query, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                ArrayList<Song> songs = new ArrayList<>();
+                try {
+                    for (int i = 0; i < response.length(); i++) {
+                        songs.add(songFromJSON(response.getJSONObject(i)));
+                        Log.d("New Song", songFromJSON(response.getJSONObject(i)).name);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.this.songs = songs;
+                setSongList();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Response", error.toString());
+            }
+        });
+        Volley.newRequestQueue(getApplicationContext()).add(arrayRequest);
     }
 }
