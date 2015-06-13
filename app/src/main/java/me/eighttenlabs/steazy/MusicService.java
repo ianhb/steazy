@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
  * <p/>
  * Created by Ian on 2/28/2015.
  */
-public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
+public class MusicService extends Service implements PlayerNotificationCallback, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
 
     public static final String SPOTIFY = "Spotify";
     public static final String SOUNDCLOUD = "Soundcloud";
@@ -36,9 +37,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder musicBind = new MusicBinder();
     public boolean userSkip;
     public MainActivity activity;
+    public ArrayList<Song> queue;
     private MediaPlayer aPlayer;
     private Player sPlayer;
-    private ArrayList<Song> queue;
     private int queuePosition;
     private Song currentSong;
     private PlayerState state;
@@ -57,7 +58,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 if (isPlaying()) {
                     pause();
                 }
-                sPlayer.play(currentSong.tag);
+                sPlayer.play("spotify:track:" + playSong.tag);
                 sPlayer.getPlayerState(this);
                 makeNotification();
                 break;
@@ -90,19 +91,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (Build.VERSION.SDK_INT > 15) {
             Intent notIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent pauseIntent = new Intent(this, MusicService.class);
-            pauseIntent.setAction(PAUSEPLAY);
-            PendingIntent piPause = PendingIntent.getService(this, 0, pauseIntent, 0);
-
-            Intent nextIntent = new Intent(this, MusicService.class);
-            pauseIntent.setAction(NEXT);
-            PendingIntent piNext = PendingIntent.getService(this, 0, nextIntent, 0);
-
-            Intent prevIntent = new Intent(this, MusicService.class);
-            pauseIntent.setAction(PREVIOUS);
-            PendingIntent piPrev = PendingIntent.getService(this, 0, prevIntent, 0);
-
 
             Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
@@ -175,8 +163,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         aPlayer.setOnCompletionListener(this);
     }
 
-    public void setSpotify(Player player) {
+    public void setSpotify(Player player, MainActivity activity) {
         sPlayer = player;
+        this.activity = activity;
     }
 
     @Override
@@ -306,11 +295,23 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         playSong();
     }
 
+    public ArrayList<Song> getQueue() {
+        return queue;
+    }
+
+    @Override
+    public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
+
+    }
+
+    @Override
+    public void onPlaybackError(ErrorType errorType, String s) {
+
+    }
+
     public class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
         }
     }
-
-
 }

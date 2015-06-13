@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
+ * Adapter to show songs in ListView
+ *
  * Created by Ian on 1/18/2015.
  */
 public class Adapter extends BaseAdapter {
@@ -41,35 +43,20 @@ public class Adapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Song object = list.get(position);
-        if (object instanceof Song) {
-            LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
-            Song curSong = (Song) object;
-            TextView artist = (TextView) layout.findViewById(R.id.artist);
-            TextView name = (TextView) layout.findViewById(R.id.name);
-            TextView source = (TextView) layout.findViewById(R.id.source);
-            String finalArtistString = "";
-            for (String art : curSong.artists) {
-                finalArtistString += art + ", ";
-            }
-            finalArtistString = finalArtistString.substring(0, finalArtistString.length() - 2);
-            artist.setText(finalArtistString);
-            name.setText(curSong.name);
-            source.setText(curSong.source);
-            layout.setTag(position);
-            return layout;
+        LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
+        Song curSong = list.get(position);
+        TextView artist = (TextView) layout.findViewById(R.id.artist);
+        TextView name = (TextView) layout.findViewById(R.id.name);
+        TextView source = (TextView) layout.findViewById(R.id.source);
+        String finalArtistString = "";
+        for (String art : curSong.artists) {
+            finalArtistString += art + ", ";
         }
-        /**
-        if (object instanceof Artist) {
-            Artist artist = (Artist) object;
-            LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.artist, parent, false);
-            ((TextView) layout.findViewById(R.id.artist_name)).setText(artist.getName());
-            layout.setTag(position);
-            return layout;
-        }
-         **/
-
-
-        return convertView;
+        finalArtistString = finalArtistString.substring(0, finalArtistString.length() - 2);
+        artist.setText(finalArtistString);
+        name.setText(curSong.name);
+        source.setText(curSong.source);
+        layout.setTag(position);
+        return layout;
     }
 }

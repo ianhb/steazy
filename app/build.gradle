@@ -10,7 +10,7 @@ android {
         }
     }
     compileSdkVersion 22
-    buildToolsVersion "20.0.0"
+    buildToolsVersion '22.0.1'
     defaultConfig {
         applicationId "me.eighttenlabs.steazy"
         minSdkVersion 15
@@ -34,6 +34,9 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
     }
 }
 

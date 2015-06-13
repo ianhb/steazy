@@ -1,9 +1,12 @@
 package me.eighttenlabs.steazy;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -26,7 +29,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.soundcloud.api.ApiWrapper;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -50,14 +52,14 @@ public class MainActivity extends ActionBarActivity {
     private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
 
-    private static final String URL = "http://192.168.0.183:8000";
+    private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
 
-    ArrayList<Song> songs;
-    private MusicController controller;
-    private ArrayList<Song> savedSearch;
+    ArrayList<Song> searchedSongs;
+    ArrayList<Song> queue;
     private boolean paused = false;
-
-    private ApiWrapper wrapper;
+    private MusicService musicService;
+    private boolean musicBound;
+    private Intent playIntent;
 
     private SharedPreferences preferences;
 
@@ -68,20 +70,11 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // View setup
         ImageButton skipButton;
         ImageButton previousButton;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-
-        wrapper = new ApiWrapper(SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_PRIVATE_ID, null, null);
-
-        songs = new ArrayList<>();
-
         skipButton = (ImageButton) findViewById(R.id.next_button);
         previousButton = (ImageButton) findViewById(R.id.previous_button);
         playPauseButton = (ImageButton) findViewById(R.id.play_pause_button);
@@ -92,50 +85,62 @@ public class MainActivity extends ActionBarActivity {
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (controller.getQueue().isEmpty()) {
-                    return;
-                }
-                if (controller.isPlaying()) {
-                    controller.pause();
+                if (musicService.isPlaying()) {
+                    musicService.pause();
                     playPauseButton.setImageResource(R.drawable.ic_action_play);
                 } else {
-                    controller.start();
+                    musicService.start();
                     playPauseButton.setImageResource(R.drawable.ic_action_pause);
                 }
             }
         });
-
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controller.next();
+                musicService.playNext();
             }
         });
-
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controller.previous();
+                musicService.playPrevious();
             }
         });
 
-        setController();
+        // Send auth request to Spotify for playback
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
+        builder.setScopes(new String[]{"streaming"});
+        AuthenticationRequest request = builder.build();
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+        // Holds songs to display
+        searchedSongs = new ArrayList<>();
+        queue = new ArrayList<>();
+
+        setupService();
     }
 
+    private void setupService() {
+        ServiceConnection musicConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
+                musicService = binder.getService();
+                setMusicBound(true);
+            }
 
-    private void setController() {
-        controller = new MusicController(this);
-        controller.setController();
-        controller.setAnchorView(findViewById(R.id.songs));
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                musicService = null;
+                setMusicBound(false);
+            }
+        };
+        playIntent = new Intent(getApplicationContext(), MusicService.class);
+        getApplicationContext().bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+        getApplicationContext().startService(playIntent);
     }
 
-    public void songPicked(View view) {
-        Song song = songs.get(Integer.parseInt(view.getTag().toString()));
-        controller.play(song, savedSearch != null);
-        Log.d("source", song.source);
-    }
-
-    public void setSongList() {
+    private void setSongList() {
         ListView songList = (ListView) findViewById(R.id.songs);
         songList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -143,27 +148,32 @@ public class MainActivity extends ActionBarActivity {
                 songPicked(view);
             }
         });
-        Adapter adapter = new Adapter(getApplicationContext(), songs);
+        Adapter adapter = new Adapter(getApplicationContext(), searchedSongs);
         songList.setAdapter(adapter);
         registerForContextMenu(songList);
     }
 
+    public void songPicked(View view) {
+        Song song = searchedSongs.get(Integer.parseInt(view.getTag().toString()));
+        play(song);
+    }
+
     public void searchCallback(ArrayList<Song> searchedSongs) {
-        if (songs.isEmpty()) {
-            songs = searchedSongs;
+        if (this.searchedSongs.isEmpty()) {
+            this.searchedSongs = searchedSongs;
         } else {
             ArrayList<Song> returnList = new ArrayList<>();
-            while ((!songs.isEmpty() || !searchedSongs.isEmpty()) && returnList.size() < 40) {
-                if (!songs.isEmpty()) {
-                    returnList.add(songs.get(0));
-                    songs.remove(0);
+            while ((!this.searchedSongs.isEmpty() || !searchedSongs.isEmpty()) && returnList.size() < 40) {
+                if (!this.searchedSongs.isEmpty()) {
+                    returnList.add(this.searchedSongs.get(0));
+                    this.searchedSongs.remove(0);
                 }
                 if (!searchedSongs.isEmpty()) {
                     returnList.add(searchedSongs.get(0));
                     searchedSongs.remove(0);
                 }
             }
-            songs = returnList;
+            this.searchedSongs = returnList;
         }
         setSongList();
     }
@@ -175,9 +185,18 @@ public class MainActivity extends ActionBarActivity {
             AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
                 Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
-                Player player = Spotify.getPlayer(playerConfig, controller, controller);
-                controller.onInitialized(player);
-                controller.setServiceActivity(this);
+                Player player = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
+                    @Override
+                    public void onInitialized(Player player) {
+                        musicService.setSpotify(player, MainActivity.this);
+                        player.addPlayerNotificationCallback(musicService);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+                });
             }
         }
     }
@@ -209,8 +228,14 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
+        playIntent = null;
         super.onDestroy();
-        controller.onDestroy();
+        if (musicBound) {
+            musicService.onDestroy();
+            setMusicBound(false);
+            musicService = null;
+        }
+        Spotify.destroyPlayer(this);
     }
 
     @Override
@@ -260,18 +285,21 @@ public class MainActivity extends ActionBarActivity {
                             return true;
                         }
                     });
+
                 }
                 break;
+            /*
             case R.id.action_show_queue:
-                if (savedSearch == null) {
-                    savedSearch = songs;
-                    songs = controller.getQueue();
+                if (searchedSongs == null) {
+                    searchedSongs = searchedSongs;
+                    searchedSongs = musicService.getQueue();
                 } else {
-                    songs = savedSearch;
+                    searchedSongs = savedSearch;
                     savedSearch = null;
                 }
                 setSongList();
                 break;
+            */
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -289,13 +317,13 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Song object = songs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        Song object = searchedSongs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         switch (item.getItemId()) {
             case R.id.play_song:
-                controller.play(object, savedSearch != null);
+                play(object);
                 return true;
             case R.id.queue_song:
-                controller.queue(object);
+                queue(object);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -303,27 +331,45 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void searchSongs(String query) {
-        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, URL + "/songs/.json?query=" + query, null, new Response.Listener<JSONArray>() {
+        query = query.replaceAll(" ", "%20");
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, URL + "/songs/.json?query=" + query,
+                null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                ArrayList<Song> songs = new ArrayList<>();
+                ArrayList<Song> songs1 = new ArrayList<>();
                 try {
                     for (int i = 0; i < response.length(); i++) {
-                        songs.add(songFromJSON(response.getJSONObject(i)));
-                        Log.d("New Song", songFromJSON(response.getJSONObject(i)).name);
+                        songs1.add(songFromJSON(response.getJSONObject(i)));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                MainActivity.this.songs = songs;
+                MainActivity.this.searchedSongs = songs1;
                 setSongList();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("Response", error.toString());
+                Log.d("VolleyError", error.getMessage());
             }
         });
         Volley.newRequestQueue(getApplicationContext()).add(arrayRequest);
+    }
+
+    public void setMusicBound(boolean musicBound) {
+        this.musicBound = musicBound;
+    }
+
+    private void play(Song song) {
+        Log.d("Song name", song.name);
+        ArrayList<Song> queue = new ArrayList<>();
+        queue.add(song);
+        musicService.setSongs(queue);
+        musicService.setQueuePosition(0);
+        musicService.playSong();
+    }
+
+    private void queue(Song song) {
+        // TODO
     }
 }
