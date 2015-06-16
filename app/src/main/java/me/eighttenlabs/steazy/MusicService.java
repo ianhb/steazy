@@ -12,7 +12,12 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
@@ -26,7 +31,8 @@ import java.util.ArrayList;
  * <p/>
  * Created by Ian on 2/28/2015.
  */
-public class MusicService extends Service implements PlayerNotificationCallback, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, PlayerStateCallback {
+public class MusicService extends Service implements PlayerNotificationCallback, PlayerStateCallback,
+        MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
     public static final String SPOTIFY = "Spotify";
     public static final String SOUNDCLOUD = "Soundcloud";
@@ -47,6 +53,9 @@ public class MusicService extends Service implements PlayerNotificationCallback,
     private AudioManager.OnAudioFocusChangeListener af;
     private Notification notification;
 
+    /**
+     * Used to play song in queue at queueposition
+     */
     public void playSong() {
 
         pauseSystemPlayback();
@@ -69,6 +78,9 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         activity.onSongChanged(currentSong);
     }
 
+    /**
+     * Pauses system sounds when playback starts
+     */
     private void pauseSystemPlayback() {
         af = new AudioManager.OnAudioFocusChangeListener() {
             @Override
@@ -87,6 +99,10 @@ public class MusicService extends Service implements PlayerNotificationCallback,
 
     }
 
+    /**
+     * Makes a notification for playback
+     * TODO improve
+     */
     private void makeNotification() {
         if (Build.VERSION.SDK_INT > 15) {
             Intent notIntent = new Intent(this, MainActivity.class);
@@ -101,11 +117,29 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         }
     }
 
+    /**
+     * Used to play Soundcloud songs where url may redirct
+     */
     private void playSoundCloudSong() {
         aPlayer.reset();
         try {
-            currentSong.tag = new SoundCloud.Redirect().execute(currentSong.tag).get();
-            aPlayer.setDataSource(currentSong.tag);
+            StringRequest request = new StringRequest(Request.Method.GET,
+                    "https://api.soundcloud.com/tracks/" + currentSong.tag + "/stream?client_id=" + MainActivity.SOUNDCLOUD_CLIENT_ID,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("response", response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    }
+            );
+            activity.volleyQueue.add(request);
+            aPlayer.setDataSource("asdf");
             aPlayer.prepareAsync();
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,6 +165,11 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         userSkip = false;
     }
 
+    /**
+     * TODO Notification playback controls
+     *
+     * @param intent intent passed from notification
+     */
     protected void onHandleIntent(Intent intent) {
         String action = intent.getAction();
         switch (action) {
@@ -154,6 +193,9 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         this.queue = queue;
     }
 
+    /**
+     * Setup Android Media Player (used for internet streams)
+     */
     public void initMusicPlayers() {
         aPlayer = new MediaPlayer();
         aPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -163,6 +205,12 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         aPlayer.setOnCompletionListener(this);
     }
 
+    /**
+     * Passes the Spotify player once it is initialized
+     *
+     * @param player   Spotify Player to used
+     * @param activity activity (used to change display)
+     */
     public void setSpotify(Player player, MainActivity activity) {
         sPlayer = player;
         this.activity = activity;
@@ -209,6 +257,11 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         return false;
     }
 
+    /**
+     * Returns position in current song
+     * TODO add progres bar
+     * @return msec into song currently playing
+     */
     public int getPosition() {
         switch (currentSong.source) {
             case SPOTIFY:
@@ -225,6 +278,11 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         }
     }
 
+    /**
+     * Returns length of current song
+     * TODO add progres bar
+     * @return current song length in msec
+     */
     public int getDuration() {
         switch (currentSong.source) {
             case SPOTIFY:
@@ -255,6 +313,11 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
+    /**
+     * Skip to point in current song
+     * TODO progress bar
+     * @param pos msec to skip to
+     */
     public void seek(int pos) {
         switch (currentSong.source) {
             case SPOTIFY:
@@ -266,6 +329,9 @@ public class MusicService extends Service implements PlayerNotificationCallback,
         }
     }
 
+    /**
+     * Start playback of current song
+     */
     public void start() {
         switch (currentSong.source) {
             case SPOTIFY:

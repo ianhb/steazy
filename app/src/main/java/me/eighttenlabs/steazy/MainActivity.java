@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
@@ -48,11 +49,12 @@ public class MainActivity extends ActionBarActivity {
 
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
-    public static final String SOUNDCLOUD_PRIVATE_ID = "b65b6b45d93eca0442dd9851b7c4b01d";
     private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
 
     private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
+
+    RequestQueue volleyQueue;
 
     ArrayList<Song> searchedSongs;
     ArrayList<Song> queue;
@@ -118,6 +120,7 @@ public class MainActivity extends ActionBarActivity {
         queue = new ArrayList<>();
 
         setupService();
+        volleyQueue = Volley.newRequestQueue(getApplicationContext());
     }
 
     private void setupService() {
@@ -205,11 +208,6 @@ public class MainActivity extends ActionBarActivity {
         songName.setText(song.name);
         songArtist.setText(song.artists[0]);
         playPauseButton.setImageResource(R.drawable.ic_action_pause);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -353,7 +351,7 @@ public class MainActivity extends ActionBarActivity {
                 Log.d("VolleyError", error.getMessage());
             }
         });
-        Volley.newRequestQueue(getApplicationContext()).add(arrayRequest);
+        volleyQueue.add(arrayRequest);
     }
 
     public void setMusicBound(boolean musicBound) {
