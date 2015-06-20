@@ -24,12 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -54,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
 
-    RequestQueue volleyQueue;
+    NetworkQueue volleyQueue;
 
     ArrayList<Song> searchedSongs;
     ArrayList<Song> queue;
@@ -120,7 +115,8 @@ public class MainActivity extends ActionBarActivity {
         queue = new ArrayList<>();
 
         setupService();
-        volleyQueue = Volley.newRequestQueue(getApplicationContext());
+        volleyQueue = NetworkQueue.getInstance(getApplicationContext());
+        Requests.setQueue(getApplicationContext());
     }
 
     private void setupService() {
@@ -329,9 +325,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void searchSongs(String query) {
-        query = query.replaceAll(" ", "%20");
-        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, URL + "/songs/.json?query=" + query,
-                null, new Response.Listener<JSONArray>() {
+        new Requests.Search(query, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 ArrayList<Song> songs1 = new ArrayList<>();
@@ -345,13 +339,7 @@ public class MainActivity extends ActionBarActivity {
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("VolleyError", error.getMessage());
-            }
         });
-        volleyQueue.add(arrayRequest);
     }
 
     public void setMusicBound(boolean musicBound) {
