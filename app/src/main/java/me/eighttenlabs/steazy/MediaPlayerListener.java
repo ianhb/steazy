@@ -33,7 +33,7 @@ public class MediaPlayerListener implements MediaPlayer.OnPreparedListener,
     @Override
     public void onPrepared(MediaPlayer mp) {
         if (service.isPlaying()) {
-            service.pause();
+            service.stop();
         }
         service.pauseSystemPlayback();
         mp.start();

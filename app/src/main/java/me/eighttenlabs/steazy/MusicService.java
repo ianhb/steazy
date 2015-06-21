@@ -119,9 +119,8 @@ public class MusicService extends Service {
 
     private void playSpotifySong() {
         if (isPlaying()) {
-            pause();
+            stop();
         }
-        pauseSystemPlayback();
         sPlayer.play("spotify:track:" + currentSong.tag);
         sPlayer.getPlayerState(spotifyListener);
     }
@@ -211,11 +210,15 @@ public class MusicService extends Service {
         return spotifyListener.isPlaying() || aPlayer.isPlaying();
     }
 
-    public void pause() {
+    void stop() {
         sPlayer.pause();
         if (aPlayer.isPlaying()) {
             aPlayer.pause();
         }
+    }
+
+    public void pause() {
+        stop();
         am.abandonAudioFocus(af);
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }

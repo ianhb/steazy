@@ -87,7 +87,7 @@ public class Requests {
 
         private JsonObjectRequest request;
 
-        public TokenRequest(String path, JSONObject data, int method, Response.Listener<JSONObject> listener) {
+        public TokenRequest(String path, final JSONObject data, int method, Response.Listener<JSONObject> listener, final Map<String, String> params) {
             try {
                 checkAuthStatus();
             } catch (Exception e) {
@@ -107,9 +107,13 @@ public class Requests {
             ) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", "Token " + TOKEN);
-                    params.put("Content-Type", "application/json");
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Token " + TOKEN);
+                    return headers;
+                }
+
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
                     return params;
                 }
             };
@@ -143,7 +147,6 @@ public class Requests {
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
                     params.put("Authorization", "Token " + TOKEN);
-                    params.put("Content-Type", "application/json");
                     return params;
                 }
 
@@ -169,14 +172,26 @@ public class Requests {
     }
 
     public static class Play {
-        public Play(Song song) {
-            JSONObject object = new JSONObject();
+        public Play(final Song song) {
+            String obj = "{\"song\":" + song.getId() + "}";
+            Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        if (BuildConfig.DEBUG && (response.getInt("id") != song.getId())) {
+                            throw new AssertionError("Song Doesn't match");
+                        }
+                    } catch (JSONException e) {
+                        Log.d("Json Error", e.toString());
+                    }
+                }
+            };
             try {
-                object.put("song", String.valueOf(song.getId()));
+                final JSONObject object = new JSONObject(obj);
+                new TokenRequest("/play/", object, Requests.POST, listener, null);
             } catch (JSONException e) {
-                Log.d("JSON Exception", e.toString());
+                Log.d("Json Error", e.toString());
             }
-            new TokenRequest("/play/", object, Requests.POST, null);
         }
     }
 
