@@ -114,7 +114,7 @@ public class MusicService extends Service {
      * Used to play Soundcloud songs where url may redirct
      */
     private void playSoundCloudSong() {
-        new Requests.SoundcloudRedirect(currentSong, aPlayer);
+        new Requests.SoundcloudRedirect(aPlayer).execute(currentSong);
     }
 
     private void playSpotifySong() {

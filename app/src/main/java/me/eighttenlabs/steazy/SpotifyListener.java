@@ -21,6 +21,9 @@ public class SpotifyListener implements PlayerNotificationCallback, PlayerStateC
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         state = playerState;
+        if (eventType == EventType.TRACK_CHANGED && state.durationInMs == state.positionInMs) {
+            service.playNext();
+        }
     }
 
     @Override

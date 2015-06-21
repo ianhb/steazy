@@ -2,6 +2,7 @@ package me.eighttenlabs.steazy;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -16,6 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +34,7 @@ public class Requests {
     public static final int POST = JsonObjectRequest.Method.POST;
     public static final int DELETE = JsonObjectRequest.Method.DELETE;
 
-    private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
+    private static final String BASEURL = "http://steazy-dev.elasticbeanstalk.com";
     private static NetworkQueue QUEUE;
     private static String TOKEN = "";
 
@@ -60,7 +63,7 @@ public class Requests {
             }
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST,
-                    URL + "/login/",
+                    BASEURL + "/login/",
                     json,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -95,7 +98,7 @@ public class Requests {
             }
             request = new JsonObjectRequest(
                     method,
-                    URL + path,
+                    BASEURL + path,
                     data,
                     listener,
                     new Response.ErrorListener() {
@@ -133,7 +136,7 @@ public class Requests {
             }
             request = new JsonArrayRequest(
                     method,
-                    URL + path,
+                    BASEURL + path,
                     data,
                     listener,
                     new Response.ErrorListener() {
@@ -195,27 +198,40 @@ public class Requests {
         }
     }
 
-    public static class SoundcloudRedirect {
-        public SoundcloudRedirect(Song song, final MediaPlayer player) {
-            Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        if (response.getString("status").equals("302 - Found")) {
-                            String url = response.getString("location");
-                            player.reset();
-                            player.setDataSource(url);
-                            player.prepareAsync();
-                        }
-                    } catch (JSONException e) {
-                        Log.d("JSONError", e.getMessage());
-                    } catch (IOException e) {
-                        Log.d("IOException", e.getMessage());
-                    }
-                }
-            };
-            new JsonObjectRequest("api.soundcloud.com/tracks/" + song.tag + "/stream/?client_id=" + MainActivity.SOUNDCLOUD_CLIENT_ID,
-                    null, listener, null);
+    public static class SoundcloudRedirect extends AsyncTask<Song, Void, String> {
+        MediaPlayer player;
+
+        public SoundcloudRedirect(final MediaPlayer player) {
+            this.player = player;
+        }
+
+        @Override
+        protected String doInBackground(Song... params) {
+            try {
+                URL url = new URL("https://api.soundcloud.com/tracks/" + params[0].tag +
+                        "/stream?client_id=" + MainActivity.SOUNDCLOUD_CLIENT_ID);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setInstanceFollowRedirects(false);
+                connection.connect();
+                String location = connection.getHeaderField("Location");
+                Log.i("Location", connection.getHeaderField("Location"));
+                connection.disconnect();
+                return location;
+            } catch (IOException e) {
+                Log.d("Bad Url", e.toString());
+            }
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            try {
+                player.reset();
+                player.setDataSource(s);
+                player.prepareAsync();
+            } catch (IOException e) {
+                Log.d("IO Error", e.toString());
+            }
         }
     }
 

@@ -35,7 +35,6 @@ public class MediaPlayerListener implements MediaPlayer.OnPreparedListener,
         if (service.isPlaying()) {
             service.stop();
         }
-        service.pauseSystemPlayback();
         mp.start();
         service.makeNotification();
     }
