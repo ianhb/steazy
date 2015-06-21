@@ -16,14 +16,16 @@ public class Song {
     public String source;
     public String tag;
     public float popularity;
+    private int id;
 
-    public Song(String name, String[] artists, String album, String tag, float popularity, String source) {
+    public Song(String name, String[] artists, String album, String tag, float popularity, String source, int id) {
         this.tag = tag;
         this.popularity = popularity;
         this.name = name;
         this.artists = artists;
         this.album = album;
         this.source = source;
+        this.id = id;
     }
 
     public static Song songFromJSON(JSONObject song) {
@@ -35,10 +37,15 @@ public class Song {
             float popularity = (float) song.getDouble("inherited_popularity");
             String artistString = song.getString("artist");
             String[] artists = artistString.split(", ");
-            return new Song(name, artists, album, tag, popularity, source);
+            int id = song.getInt("id");
+            return new Song(name, artists, album, tag, popularity, source, id);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public int getId() {
+        return id;
     }
 }

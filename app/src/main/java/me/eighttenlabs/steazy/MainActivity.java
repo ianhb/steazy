@@ -7,8 +7,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -40,14 +39,12 @@ import java.util.ArrayList;
 import static me.eighttenlabs.steazy.Song.songFromJSON;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
     private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
-
-    private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
 
     NetworkQueue volleyQueue;
 
@@ -117,6 +114,7 @@ public class MainActivity extends ActionBarActivity {
         setupService();
         volleyQueue = NetworkQueue.getInstance(getApplicationContext());
         Requests.setQueue(getApplicationContext());
+        new Requests.Login("admin", "admin");
     }
 
     private void setupService() {
@@ -153,8 +151,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void songPicked(View view) {
-        Song song = searchedSongs.get(Integer.parseInt(view.getTag().toString()));
-        play(song);
+        play(Integer.parseInt(view.getTag().toString()));
     }
 
     public void searchCallback(ArrayList<Song> searchedSongs) {
@@ -183,17 +180,14 @@ public class MainActivity extends ActionBarActivity {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
-                Player player = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
+                Config playerConfig = new Config(getApplicationContext(), response.getAccessToken(), SPOTIFY_CLIENT_ID);
+                Spotify.getPlayer(playerConfig, musicService, new Player.InitializationObserver() {
                     @Override
                     public void onInitialized(Player player) {
-                        musicService.setSpotify(player, MainActivity.this);
-                        player.addPlayerNotificationCallback(musicService);
+                        musicService.setPlayers(player, MainActivity.this);
                     }
-
                     @Override
                     public void onError(Throwable throwable) {
-
                     }
                 });
             }
@@ -229,7 +223,6 @@ public class MainActivity extends ActionBarActivity {
             setMusicBound(false);
             musicService = null;
         }
-        Spotify.destroyPlayer(this);
     }
 
     @Override
@@ -249,13 +242,13 @@ public class MainActivity extends ActionBarActivity {
                 if (android.os.Build.VERSION.SDK_INT < 11) {
                     supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
                 }
-                if (getSupportActionBar().getCustomView() != null) {
+                if (getSupportActionBar() != null && getSupportActionBar().getCustomView() != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getSupportActionBar().getCustomView().findViewById(R.id.search_box).getWindowToken(), 0);
                     getSupportActionBar().setCustomView(null);
                     getSupportActionBar().setDisplayShowCustomEnabled(false);
-                } else {
+                } else if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayShowCustomEnabled(true);
                     getSupportActionBar().setCustomView(R.layout.action_bar_search);
                     final EditText box = ((EditText) getSupportActionBar().getCustomView().findViewById(R.id.search_box));
@@ -311,13 +304,13 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Song object = searchedSongs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        Song song = searchedSongs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
         switch (item.getItemId()) {
             case R.id.play_song:
-                play(object);
+                play(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
                 return true;
             case R.id.queue_song:
-                queue(object);
+                queue(song);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -346,16 +339,13 @@ public class MainActivity extends ActionBarActivity {
         this.musicBound = musicBound;
     }
 
-    private void play(Song song) {
-        Log.d("Song name", song.name);
-        ArrayList<Song> queue = new ArrayList<>();
-        queue.add(song);
-        musicService.setSongs(queue);
-        musicService.setQueuePosition(0);
+    private void play(int pos) {
+        musicService.setSongs(searchedSongs);
+        musicService.setQueuePosition(pos);
         musicService.playSong();
     }
 
     private void queue(Song song) {
-        // TODO
+        musicService.queue.add(musicService.getQueuePosition() + 1, song);
     }
 }

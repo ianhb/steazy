@@ -1,6 +1,7 @@
 package me.eighttenlabs.steazy;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -14,13 +15,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Encompasses the network requests to the servers
+ *
  * Created by Ian on 6/18/2015.
  */
 public class Requests {
+
+    public static final int GET = JsonObjectRequest.Method.GET;
+    public static final int PUT = JsonObjectRequest.Method.PUT;
+    public static final int POST = JsonObjectRequest.Method.POST;
+    public static final int DELETE = JsonObjectRequest.Method.DELETE;
 
     private static final String URL = "http://steazy-dev.elasticbeanstalk.com";
     private static NetworkQueue QUEUE;
@@ -41,19 +50,24 @@ public class Requests {
 
     public static class Login {
 
-        public Login(String username, String password) {
-            final Map<String, String> headers = new HashMap<>();
-            headers.put("username", username);
-            headers.put("password", password);
-            JsonObjectRequest loginRequest = new JsonObjectRequest(
-                    Request.Method.PUT,
+        public Login(final String username, final String password) {
+            JSONObject json = new JSONObject();
+            try {
+                json.put("username", username);
+                json.put("password", password);
+            } catch (JSONException e) {
+                Log.d("JSON Exception", e.toString());
+            }
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST,
                     URL + "/login/",
-                    null,
+                    json,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
                                 TOKEN = response.getString("token");
+                                Log.d("Login", TOKEN);
                             } catch (JSONException e) {
                                 Log.d("Login Failed", e.getMessage());
                             }
@@ -61,28 +75,19 @@ public class Requests {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d("Request Error", error.getMessage());
+                    Log.d("Request Error", error.toString());
                 }
             }
-            ) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    return headers;
-                }
-            };
+            );
+            QUEUE.addtToRequestQueue(request);
         }
     }
 
     private static class TokenRequest {
 
-        public static final int GET = JsonObjectRequest.Method.GET;
-        public static final int PUT = JsonObjectRequest.Method.PUT;
-        public static final int POST = JsonObjectRequest.Method.POST;
-        public static final int DELETE = JsonObjectRequest.Method.DELETE;
-
         private JsonObjectRequest request;
 
-        public TokenRequest(String path, JSONObject data, int method, Response.Listener listener, final Map<String, String> params) {
+        public TokenRequest(String path, JSONObject data, int method, Response.Listener<JSONObject> listener) {
             try {
                 checkAuthStatus();
             } catch (Exception e) {
@@ -96,7 +101,7 @@ public class Requests {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("Request Error", error.getMessage());
+                            Log.d("Request Error", error.toString());
                         }
                     }
             ) {
@@ -107,15 +112,6 @@ public class Requests {
                     params.put("Content-Type", "application/json");
                     return params;
                 }
-
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    if (params != null) {
-                        return params;
-                    } else {
-                        return super.getParams();
-                    }
-                }
             };
             QUEUE.addtToRequestQueue(request);
         }
@@ -123,14 +119,9 @@ public class Requests {
 
     private static class TokenArrayRequest {
 
-        public static final int GET = JsonObjectRequest.Method.GET;
-        public static final int PUT = JsonObjectRequest.Method.PUT;
-        public static final int POST = JsonObjectRequest.Method.POST;
-        public static final int DELETE = JsonObjectRequest.Method.DELETE;
-
         private JsonArrayRequest request;
 
-        public TokenArrayRequest(String path, JSONArray data, int method, Response.Listener listener, final Map<String, String> params) {
+        public TokenArrayRequest(String path, JSONArray data, int method, Response.Listener<JSONArray> listener, final Map<String, String> params) {
             try {
                 checkAuthStatus();
             } catch (Exception e) {
@@ -144,7 +135,7 @@ public class Requests {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("Request Error", error.getMessage());
+                            Log.d("Request Error", error.toString());
                         }
                     }
             ) {
@@ -170,13 +161,47 @@ public class Requests {
     }
 
     public static class Search {
-
-        public Search(String query, Response.Listener listener) {
-            Map<String, String> params = new HashMap<>();
-            params.put("query", query);
-            TokenArrayRequest request = new TokenArrayRequest("/search/", null, TokenRequest.GET, listener, params);
+        public Search(String query, Response.Listener<JSONArray> listener) {
+            query = query.replaceAll(" ", "%20");
+            new TokenArrayRequest("/songs/?query=" + query,
+                    null, Requests.GET, listener, null);
         }
+    }
 
+    public static class Play {
+        public Play(Song song) {
+            JSONObject object = new JSONObject();
+            try {
+                object.put("song", String.valueOf(song.getId()));
+            } catch (JSONException e) {
+                Log.d("JSON Exception", e.toString());
+            }
+            new TokenRequest("/play/", object, Requests.POST, null);
+        }
+    }
+
+    public static class SoundcloudRedirect {
+        public SoundcloudRedirect(Song song, final MediaPlayer player) {
+            Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        if (response.getString("status").equals("302 - Found")) {
+                            String url = response.getString("location");
+                            player.reset();
+                            player.setDataSource(url);
+                            player.prepareAsync();
+                        }
+                    } catch (JSONException e) {
+                        Log.d("JSONError", e.getMessage());
+                    } catch (IOException e) {
+                        Log.d("IOException", e.getMessage());
+                    }
+                }
+            };
+            new JsonObjectRequest("api.soundcloud.com/tracks/" + song.tag + "/stream/?client_id=" + MainActivity.SOUNDCLOUD_CLIENT_ID,
+                    null, listener, null);
+        }
     }
 
 }
