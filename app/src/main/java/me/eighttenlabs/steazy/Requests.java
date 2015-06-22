@@ -198,6 +198,41 @@ public class Requests {
         }
     }
 
+    public static class CreateAccount {
+        /**
+         * Sends a network request to create an account on the backend
+         * If connection is successful, returns to listener a JSON object of {'key':token for new account}
+         * If username or email is taken, returns a JSON object of
+         * {'username'/'email': ["This field must be unique"}
+         * If connection fails, calls eListener.
+         *
+         * @param username  username for new account
+         * @param password  password for new account
+         * @param email     email for new account
+         * @param listener  listener to process feedback from server
+         * @param eListener listener to process errors in connection
+         */
+        public CreateAccount(String username, String password, String email,
+                             Response.Listener<JSONObject> listener,
+                             Response.ErrorListener eListener) {
+            try {
+                JSONObject accountData = new JSONObject();
+                accountData.put("email", email);
+                accountData.put("username", username);
+                accountData.put("password", password);
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+                        BASEURL + "/users/create/",
+                        accountData,
+                        listener,
+                        eListener
+                );
+                QUEUE.addtToRequestQueue(request);
+            } catch (JSONException e) {
+                Log.d("Json Error", e.toString());
+            }
+        }
+    }
+
     public static class SoundcloudRedirect extends AsyncTask<Song, Void, String> {
         MediaPlayer player;
 
