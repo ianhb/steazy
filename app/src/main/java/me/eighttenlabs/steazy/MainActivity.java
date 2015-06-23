@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String SPOTIFY_CALLBACK = "steazy://callback";
     private static final int REQUEST_CODE = 1337;
 
-    NetworkQueue volleyQueue;
 
     ArrayList<Song> searchedSongs;
     ArrayList<Song> queue;
@@ -112,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         queue = new ArrayList<>();
 
         setupService();
-        volleyQueue = NetworkQueue.getInstance(getApplicationContext());
         Requests.setQueue(getApplicationContext());
         new Requests.Login("admin", "admin");
     }

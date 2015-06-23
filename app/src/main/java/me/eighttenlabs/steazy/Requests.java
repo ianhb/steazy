@@ -34,12 +34,13 @@ public class Requests {
     public static final int POST = JsonObjectRequest.Method.POST;
     public static final int DELETE = JsonObjectRequest.Method.DELETE;
 
-    private static final String BASEURL = "http://steazy-dev.elasticbeanstalk.com";
+    private static String BASEURL;
     private static NetworkQueue QUEUE;
     private static String TOKEN = "";
 
     public static void setQueue(Context context) {
         QUEUE = NetworkQueue.getInstance(context);
+        BASEURL = context.getString(R.string.baseUrl);
     }
 
     private static void checkAuthStatus() throws Exception {
@@ -53,7 +54,7 @@ public class Requests {
 
     public static class Login {
 
-        public Login(final String username, final String password) {
+        public Login(final String username, final String password, Response.Listener<JSONObject> listener) {
             JSONObject json = new JSONObject();
             try {
                 json.put("username", username);
@@ -65,17 +66,8 @@ public class Requests {
                     Request.Method.POST,
                     BASEURL + "/login/",
                     json,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                TOKEN = response.getString("token");
-                                Log.d("Login", TOKEN);
-                            } catch (JSONException e) {
-                                Log.d("Login Failed", e.getMessage());
-                            }
-                        }
-                    }, new Response.ErrorListener() {
+                    listener
+                    , new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.d("Request Error", error.toString());
@@ -83,6 +75,20 @@ public class Requests {
             }
             );
             QUEUE.addtToRequestQueue(request);
+        }
+
+        public Login(final String username, final String password) {
+            this(username, password, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        TOKEN = response.getString("token");
+                        Log.d("Login", TOKEN);
+                    } catch (JSONException e) {
+                        Log.d("Login Failed", e.getMessage());
+                    }
+                }
+            });
         }
     }
 
@@ -125,9 +131,7 @@ public class Requests {
     }
 
     private static class TokenArrayRequest {
-
         private JsonArrayRequest request;
-
         public TokenArrayRequest(String path, JSONArray data, int method, Response.Listener<JSONArray> listener, final Map<String, String> params) {
             try {
                 checkAuthStatus();
@@ -171,6 +175,38 @@ public class Requests {
             query = query.replaceAll(" ", "%20");
             new TokenArrayRequest("/songs/?query=" + query,
                     null, Requests.GET, listener, null);
+        }
+    }
+
+    public static class GetPlaylists {
+        public GetPlaylists(Response.Listener<JSONArray> listener) {
+            new TokenArrayRequest("/playlists/", null, Requests.GET, listener, null);
+        }
+    }
+
+    public static class AddSongToPlaylist {
+        public AddSongToPlaylist(final int songId, final int playlistId) {
+            try {
+                JSONObject data = new JSONObject();
+                data.put("playlist", playlistId);
+                data.put("song", songId);
+                Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (BuildConfig.DEBUG && (response.getInt("song") != songId || response.getInt("playlist") != playlistId)) {
+                                throw new AssertionError("Response doesn't match send");
+                            }
+                        } catch (JSONException e) {
+                            Log.d("JSON Error", "Unable to decode response");
+                        }
+                    }
+                };
+                new TokenRequest("/add/", data, Requests.POST, listener, null);
+            } catch (JSONException e) {
+                Log.d("JSON Error", "Unable to add song");
+            }
+
         }
     }
 
