@@ -29,7 +29,10 @@ public class MusicService extends Service {
     public static final String SOUNDCLOUD = "Soundcloud";
 
     private final IBinder musicBind = new MusicBinder();
+
+    // Used to tell Spotify that the user ended playback
     public boolean userSkip;
+    // Used to allow service to update UI
     public MainActivity activity;
     public ArrayList<Song> queue;
     private MediaPlayer aPlayer;
@@ -112,11 +115,16 @@ public class MusicService extends Service {
 
     /**
      * Used to play Soundcloud songs where url may redirct
+     * Precondition: currentSong.source = SOUNDCLOUD
      */
     private void playSoundCloudSong() {
         new Requests.SoundcloudRedirect(aPlayer).execute(currentSong);
     }
 
+    /**
+     * Plays a Spotify song
+     * Precondition: currontSong.source = SPOTIFY
+     */
     private void playSpotifySong() {
         if (isPlaying()) {
             stop();
@@ -135,6 +143,11 @@ public class MusicService extends Service {
         super.onDestroy();
     }
 
+    /**
+     * Sets the songs in the queue
+     *
+     * @param queue songs to enqueue
+     */
     public void setSongs(ArrayList<Song> queue) {
         this.queue = queue;
     }
@@ -205,11 +218,18 @@ public class MusicService extends Service {
         }
     }
 
+    /***
+     * Returns whether or not any of the players are currently playing
+     * @return if any player is playing
+     */
     public boolean isPlaying() {
         sPlayer.getPlayerState(spotifyListener);
         return spotifyListener.isPlaying() || aPlayer.isPlaying();
     }
 
+    /***
+     * Pauses playback
+     */
     void stop() {
         sPlayer.pause();
         if (aPlayer.isPlaying()) {
@@ -217,6 +237,9 @@ public class MusicService extends Service {
         }
     }
 
+    /***
+     * Pauses playback and releases audio focus
+     */
     public void pause() {
         stop();
         am.abandonAudioFocus(af);
@@ -254,32 +277,52 @@ public class MusicService extends Service {
         }
     }
 
+    /***
+     * Skips to the previous song in the queue and plays it
+     */
     public void playPrevious() {
         queuePosition--;
         if (queuePosition < 0) {
             queuePosition = queue.size() - 1;
         }
+        // Used to make sure Spotify recognizes the song hasn't ended
         userSkip = true;
         playSong();
     }
 
+    /***
+     * Skips to the next song in the queue and plays it
+     */
     public void playNext() {
         queuePosition++;
         if (queuePosition >= queue.size()) {
             queuePosition = 0;
         }
+        // Used to make sure Spotify recognizes the song hasn't ended
         userSkip = true;
         playSong();
     }
 
+    /***
+     * Returns the current songs in the queue
+     * @return list of songs in queue
+     */
     public ArrayList<Song> getQueue() {
         return queue;
     }
 
+    /***
+     * Returns the current queueposition
+     * @return queue position
+     */
     public int getQueuePosition() {
         return queuePosition;
     }
 
+    /***
+     * Sets the position in the queue to an integer
+     * @param pos position in queue (Precondition: pos < queue.length())
+     */
     public void setQueuePosition(int pos) {
         queuePosition = pos;
     }

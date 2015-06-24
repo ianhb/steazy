@@ -38,22 +38,42 @@ public class Requests {
     private static NetworkQueue QUEUE;
     private static String TOKEN = "";
 
+    /**
+     * Sets up the Requests class
+     *
+     * @param context context with which to get a NetworkQueue
+     */
     public static void setQueue(Context context) {
         QUEUE = NetworkQueue.getInstance(context);
         BASEURL = context.getString(R.string.baseUrl);
     }
 
+    /***
+     * Checks to make sure that the Requests class has been setup to send requests. If not correctly
+     * setup, throws an exception
+     * @throws Exception error detailing the reason Requests has not been set up properly
+     */
     private static void checkAuthStatus() throws Exception {
         if (QUEUE == null) {
-            throw new Exception("Queue not initialized");
+            throw new Exception("QUEUE not initialized");
         }
         if (TOKEN == null) {
             throw new Exception("TOKEN not set");
+        }
+        if (BASEURL == null) {
+            throw new Exception("BASEURL has not been set");
         }
     }
 
     public static class Login {
 
+        /***
+         * Sends a request to the server to get a token assigned to an account given a matching username and password.
+         * Allows the caller to define a listener to respond to incorrect username and password
+         * @param username username to sign in with
+         * @param password password matching username
+         * @param listener listener to act on server's response
+         */
         public Login(final String username, final String password, Response.Listener<JSONObject> listener) {
             JSONObject json = new JSONObject();
             try {
@@ -77,6 +97,11 @@ public class Requests {
             QUEUE.addtToRequestQueue(request);
         }
 
+        /***
+         * Logs in and on successful login, sets TOKEN to the user token. Should only be used in DEBUG
+         * @param username username to sign in with
+         * @param password password matching username
+         */
         public Login(final String username, final String password) {
             this(username, password, new Response.Listener<JSONObject>() {
                 @Override
@@ -96,6 +121,15 @@ public class Requests {
 
         private JsonObjectRequest request;
 
+        /***
+         * A generic JSON request attributed to the user. Returns an object and takes an object as data. Automatically sends the token of the user.
+         * Errors are logged. Allows for custom parameters to be sent along with the JSON data
+         * @param path url extension from BASEURL
+         * @param data JSON Post data
+         * @param method HTTP Method (Requests.GET/POST/PUT/DELETE)
+         * @param listener listener to act on response
+         * @param params additional parameters to send to server
+         */
         public TokenRequest(String path, final JSONObject data, int method, Response.Listener<JSONObject> listener, final Map<String, String> params) {
             try {
                 checkAuthStatus();
@@ -132,6 +166,16 @@ public class Requests {
 
     private static class TokenArrayRequest {
         private JsonArrayRequest request;
+
+        /***
+         * A generic JSONArray request attributed to the user. Returns an array and takes an array as data. Automatically sends the token of the user.
+         * Errors are logged. Allows for custom parameters to be sent along with the JSON data
+         * @param path url extension from BASEURL
+         * @param data JSON Post data
+         * @param method HTTP Method (Requests.GET/POST/PUT/DELETE)
+         * @param listener listener to act on response
+         * @param params additional parameters to send to server
+         */
         public TokenArrayRequest(String path, JSONArray data, int method, Response.Listener<JSONArray> listener, final Map<String, String> params) {
             try {
                 checkAuthStatus();
@@ -171,6 +215,11 @@ public class Requests {
     }
 
     public static class Search {
+        /***
+         * Requests a list of songs matching a query
+         * @param query search request
+         * @param listener listener to act on server response
+         */
         public Search(String query, Response.Listener<JSONArray> listener) {
             query = query.replaceAll(" ", "%20");
             new TokenArrayRequest("/songs/?query=" + query,
@@ -179,12 +228,27 @@ public class Requests {
     }
 
     public static class GetPlaylists {
+        /***
+         * Returns the users playlists
+         *
+         * Playlists are returned as a JSONArray of Playlists
+         * Playlists have format
+         *  {"id":table id of playlist, "name":name, "owner_name":owner's name, "owner":table id of owner, "date_created":string of create date+time
+         *  "songs":[array of songs]}
+         *
+         * @param listener listener to respond to server's response
+         */
         public GetPlaylists(Response.Listener<JSONArray> listener) {
             new TokenArrayRequest("/playlists/", null, Requests.GET, listener, null);
         }
     }
 
     public static class AddSongToPlaylist {
+        /***
+         * Adds a song to a playlist
+         * @param songId id of song to add
+         * @param playlistId id of playlist to add to
+         */
         public AddSongToPlaylist(final int songId, final int playlistId) {
             try {
                 JSONObject data = new JSONObject();
@@ -211,6 +275,10 @@ public class Requests {
     }
 
     public static class Play {
+        /***
+         * Sends a notice to the server that a user played a song
+         * @param song song played
+         */
         public Play(final Song song) {
             String obj = "{\"song\":" + song.getId() + "}";
             Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
@@ -269,13 +337,25 @@ public class Requests {
         }
     }
 
+    /***
+     * Used to find the stream for a Soundcloud song
+     */
     public static class SoundcloudRedirect extends AsyncTask<Song, Void, String> {
         MediaPlayer player;
 
+        /***
+         * Initializes a redirect request to play a stream on player
+         * @param player the player to start playing the stream on
+         */
         public SoundcloudRedirect(final MediaPlayer player) {
             this.player = player;
         }
 
+        /***
+         * Gets the redirect url for the first song in params
+         * @param params a length 1 array of a soundcloud song id string
+         * @return url of the stream for song in params
+         */
         @Override
         protected String doInBackground(Song... params) {
             try {
@@ -294,6 +374,10 @@ public class Requests {
             return "";
         }
 
+        /***
+         * Sets starts preparing the song from the request
+         * @param s url of the song's stream
+         */
         @Override
         protected void onPostExecute(String s) {
             try {
