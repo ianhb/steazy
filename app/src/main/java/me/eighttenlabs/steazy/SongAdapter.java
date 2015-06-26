@@ -17,37 +17,37 @@ import java.util.ArrayList;
  */
 public class SongAdapter extends BaseAdapter {
 
-    private ArrayList<Song> list;
+    private ArrayList<Song> songs;
     private LayoutInflater songInf;
 
-    public SongAdapter(Context c, ArrayList<Song> list) {
-        this.list = list;
+    public SongAdapter(Context c, ArrayList<Song> songs) {
+        this.songs = songs;
         songInf = LayoutInflater.from(c);
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return songs.get(position);
     }
 
     @Override
     public int getCount() {
-        return list.size();
+        return songs.size();
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return songs.get(position).getId();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         LinearLayout layout = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
-        Song curSong = list.get(position);
-        TextView artist = (TextView) layout.findViewById(R.id.artist);
-        TextView name = (TextView) layout.findViewById(R.id.name);
-        TextView source = (TextView) layout.findViewById(R.id.source);
+        Song curSong = songs.get(position);
+        TextView artist = (TextView) layout.findViewById(R.id.song_layout_artist);
+        TextView name = (TextView) layout.findViewById(R.id.song_layout_name);
+        TextView source = (TextView) layout.findViewById(R.id.song_layout_source);
         String finalArtistString = "";
         for (String art : curSong.artists) {
             finalArtistString += art + ", ";

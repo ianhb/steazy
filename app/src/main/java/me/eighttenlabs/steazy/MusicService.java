@@ -60,6 +60,9 @@ public class MusicService extends Service {
      * Used to play song in queue at queueposition
      */
     public void playSong() {
+        if (!isPlaying()){
+            pauseSystemPlayback();
+        }
         currentSong = queue.get(queuePosition);
         switch (currentSong.source) {
             case SPOTIFY:

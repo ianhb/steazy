@@ -368,7 +368,7 @@ public class Requests {
                 connection.setInstanceFollowRedirects(false);
                 connection.connect();
                 String location = connection.getHeaderField("Location");
-                Log.i("Location", connection.getHeaderField("Location"));
+                Log.i("Location", String.valueOf(location == null));
                 connection.disconnect();
                 return location;
             } catch (IOException e) {
