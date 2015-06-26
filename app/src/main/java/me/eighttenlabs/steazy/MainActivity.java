@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -143,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
                 songPicked(view);
             }
         });
-        Adapter adapter = new Adapter(getApplicationContext(), searchedSongs);
-        songList.setAdapter(adapter);
+        SongAdapter songAdapter = new SongAdapter(getApplicationContext(), searchedSongs);
+        songList.setAdapter(songAdapter);
         registerForContextMenu(songList);
     }
 
@@ -270,6 +272,18 @@ public class MainActivity extends AppCompatActivity {
                             return true;
                         }
                     });
+                    box.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            fastSearch(s.toString());
+                        }
+                    });
 
                 }
                 break;
@@ -316,7 +330,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchSongs(String query) {
-        new Requests.Search(query, new Response.Listener<JSONArray>() {
+        new Requests.Search(query, Requests.Search.ALL, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                ArrayList<Song> songs1 = new ArrayList<>();
+                try {
+                    for (int i = 0; i < response.length(); i++) {
+                        songs1.add(songFromJSON(response.getJSONObject(i)));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.this.searchedSongs = songs1;
+                setSongList();
+            }
+        });
+    }
+
+    public void fastSearch(String query) {
+        new Requests.Search(query, Requests.Search.DATABASE, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 ArrayList<Song> songs1 = new ArrayList<>();

@@ -1,5 +1,7 @@
 package me.eighttenlabs.steazy;
 
+import android.util.Log;
+
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
@@ -21,7 +23,8 @@ public class SpotifyListener implements PlayerNotificationCallback, PlayerStateC
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         state = playerState;
-        if (eventType == EventType.TRACK_CHANGED && state.durationInMs == state.positionInMs) {
+        Log.i("SPOTIFY STATE", String.valueOf(state.durationInMs - state.positionInMs));
+        if (eventType == EventType.END_OF_CONTEXT) {
             service.playNext();
         }
     }

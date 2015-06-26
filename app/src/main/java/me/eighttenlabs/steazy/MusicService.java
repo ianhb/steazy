@@ -102,7 +102,7 @@ public class MusicService extends Service {
     public void makeNotification() {
         if (Build.VERSION.SDK_INT > 15) {
             Intent notIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)

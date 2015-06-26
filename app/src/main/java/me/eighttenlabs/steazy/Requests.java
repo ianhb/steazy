@@ -215,17 +215,20 @@ public class Requests {
     }
 
     public static class Search {
+        public static final String ALL = "";
+        public static final String DATABASE ="fast/";
         /***
          * Requests a list of songs matching a query
          * @param query search request
          * @param listener listener to act on server response
          */
-        public Search(String query, Response.Listener<JSONArray> listener) {
+        public Search(String query, String type, Response.Listener<JSONArray> listener) {
             query = query.replaceAll(" ", "%20");
-            new TokenArrayRequest("/songs/?query=" + query,
+            new TokenArrayRequest("/songs/" + type + "?query=" + query,
                     null, Requests.GET, listener, null);
         }
     }
+
 
     public static class GetPlaylists {
         /***

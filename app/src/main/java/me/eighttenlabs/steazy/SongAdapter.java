@@ -11,16 +11,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Adapter to show songs in ListView
+ * SongAdapter to show songs in ListView
  *
  * Created by Ian on 1/18/2015.
  */
-public class Adapter extends BaseAdapter {
+public class SongAdapter extends BaseAdapter {
 
     private ArrayList<Song> list;
     private LayoutInflater songInf;
 
-    public Adapter(Context c, ArrayList<Song> list) {
+    public SongAdapter(Context c, ArrayList<Song> list) {
         this.list = list;
         songInf = LayoutInflater.from(c);
     }
