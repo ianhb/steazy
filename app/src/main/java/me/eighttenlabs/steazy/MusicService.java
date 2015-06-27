@@ -238,6 +238,7 @@ public class MusicService extends Service {
         if (aPlayer.isPlaying()) {
             aPlayer.pause();
         }
+        stopForeground(true);
     }
 
     /***
@@ -278,6 +279,7 @@ public class MusicService extends Service {
                 aPlayer.start();
                 break;
         }
+        makeNotification();
     }
 
     /***

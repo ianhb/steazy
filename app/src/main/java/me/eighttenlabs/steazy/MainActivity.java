@@ -1,7 +1,10 @@
 package me.eighttenlabs.steazy;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -21,6 +24,7 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -194,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         super.onActivityResult(requestCode, responseCode, intent);
+        getUserPlaylists();
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
@@ -307,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_show_queue:
                 getUserPlaylists();
+                setPlaylistList();
                 break;
 
             case R.id.action_settings:
@@ -320,8 +326,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu_main, menu);
+        if (((ListView)findViewById(R.id.songs)).getAdapter() instanceof SongAdapter) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.context_menu_main, menu);
+        }
     }
 
     @Override
@@ -333,6 +341,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.queue_song:
                 queue(song);
+                return true;
+            case R.id.add_song_to_playlist:
+                addSongDialog(song);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -352,7 +363,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Playlist.setPlaylist(playlists);
-                setPlaylistList();
             }
         });
     }
@@ -405,5 +415,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void queue(Song song) {
         musicService.queue.add(musicService.getQueuePosition() + 1, song);
+    }
+
+    private void addSongDialog(final Song song){
+        if (Playlist.getPlaylist() == null) {
+            getUserPlaylists();
+            return;
+        }
+        final ArrayList<Playlist> playlists = Playlist.getPlaylist();
+        String[] playlistNames = new String[playlists.size()];
+        for (int i=0;i<playlists.size();i++) {
+            playlistNames[i] = playlists.get(i).getName();
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a Playlist").setItems(playlistNames, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new Requests.AddSongToPlaylist(song.getId(), playlists.get(which).getId());
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

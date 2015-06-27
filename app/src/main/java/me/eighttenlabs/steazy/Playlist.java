@@ -22,7 +22,7 @@ public class Playlist {
     private ArrayList<Song> songs;
     private String createDate;
 
-    private static ArrayList<Playlist> playlist;
+    private static ArrayList<Playlist> playlist = new ArrayList<>();
 
     public Playlist(int id, String name, String owner, int ownerId, ArrayList<Song> songs,
                     String createDate) {
@@ -44,7 +44,7 @@ public class Playlist {
             JSONArray songs = playlistJSON.getJSONArray("songs");
             ArrayList<Song> songList = new ArrayList<>();
             for (int i = 0; i < songs.length(); i++) {
-                songList.add(Song.songFromJSON(songs.optJSONObject(i)));
+                songList.add(Song.songFromJSON(songs.getJSONObject(i).getJSONObject("song_data")));
             }
             return new Playlist(id, name, owner, ownerId, songList, createDate);
         } catch (JSONException e) {

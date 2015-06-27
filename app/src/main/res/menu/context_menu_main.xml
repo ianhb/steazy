@@ -8,4 +8,8 @@
         android:id="@+id/queue_song"
         android:title="Queue" />
 
+    <item
+        android:id="@+id/add_song_to_playlist"
+        android:title="Add Song to Playlist" />
+
 </menu>
