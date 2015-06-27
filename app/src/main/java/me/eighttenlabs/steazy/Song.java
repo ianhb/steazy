@@ -40,7 +40,6 @@ public class Song {
             int id = song.getInt("id");
             return new Song(name, artists, album, tag, popularity, source, id);
         } catch (JSONException e) {
-            e.printStackTrace();
             return null;
         }
     }
