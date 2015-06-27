@@ -22,6 +22,8 @@ public class Playlist {
     private ArrayList<Song> songs;
     private String createDate;
 
+    private static ArrayList<Playlist> playlist;
+
     public Playlist(int id, String name, String owner, int ownerId, ArrayList<Song> songs,
                     String createDate) {
         this.id = id;
@@ -38,7 +40,7 @@ public class Playlist {
             String name = playlistJSON.getString("name");
             String owner = playlistJSON.getString("owner_name");
             int ownerId = playlistJSON.getInt("owner");
-            String createDate = playlistJSON.getString("data_created");
+            String createDate = playlistJSON.getString("date_created");
             JSONArray songs = playlistJSON.getJSONArray("songs");
             ArrayList<Song> songList = new ArrayList<>();
             for (int i = 0; i < songs.length(); i++) {
@@ -46,7 +48,7 @@ public class Playlist {
             }
             return new Playlist(id, name, owner, ownerId, songList, createDate);
         } catch (JSONException e) {
-            Log.d("JSON Error", "Unable to parse playlist");
+            Log.e("JSON Error", e.toString());
             return null;
         }
     }
@@ -71,4 +73,16 @@ public class Playlist {
         return createDate;
     }
 
+    public static ArrayList<Playlist> getPlaylist() {
+        return playlist;
+    }
+
+    public static void setPlaylist(ArrayList<Playlist> playlist) {
+        Playlist.playlist = playlist;
+    }
+
+    @Override
+    public String toString() {
+        return this.name + " by " + this.getOwner();
+    }
 }

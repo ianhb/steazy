@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (musicService.getQueue() == null || musicService.getQueue().size() == 0){
+                    return;
+                }
                 if (musicService.isPlaying()) {
                     musicService.pause();
                     playPauseButton.setImageResource(R.drawable.ic_action_play);
@@ -148,6 +152,19 @@ public class MainActivity extends AppCompatActivity {
         SongAdapter songAdapter = new SongAdapter(getApplicationContext(), searchedSongs);
         songList.setAdapter(songAdapter);
         registerForContextMenu(songList);
+    }
+
+    private void setPlaylistList() {
+        ListView playlistList = (ListView) findViewById(R.id.songs);
+        playlistList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                searchedSongs = Playlist.getPlaylist().get(Integer.parseInt(view.getTag().toString())).getSongs();
+                setSongList();
+            }
+        });
+        PlaylistAdapter playlistAdapter = new PlaylistAdapter(getApplicationContext(), Playlist.getPlaylist());
+        playlistList.setAdapter(playlistAdapter);
     }
 
     public void songPicked(View view) {
@@ -287,18 +304,11 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 break;
-            /*
+
             case R.id.action_show_queue:
-                if (searchedSongs == null) {
-                    searchedSongs = searchedSongs;
-                    searchedSongs = musicService.getQueue();
-                } else {
-                    searchedSongs = savedSearch;
-                    savedSearch = null;
-                }
-                setSongList();
+                getUserPlaylists();
                 break;
-            */
+
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -327,6 +337,24 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    public void getUserPlaylists() {
+        new Requests.GetPlaylists(new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray jsonArray) {
+                ArrayList<Playlist> playlists = new ArrayList<>();
+                try {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        playlists.add(Playlist.PlaylistFromJSON(jsonArray.getJSONObject(i)));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Playlist.setPlaylist(playlists);
+                setPlaylistList();
+            }
+        });
     }
 
     public void searchSongs(String query) {
