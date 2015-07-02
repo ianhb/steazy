@@ -48,6 +48,10 @@ public class Requests {
         BASEURL = context.getString(R.string.baseUrl);
     }
 
+    public static void setToken(String token) {
+        TOKEN = token;
+    }
+
     /***
      * Checks to make sure that the Requests class has been setup to send requests. If not correctly
      * setup, throws an exception

@@ -3,13 +3,14 @@
 
     <!-- Strings related to login -->
     <string name="prompt_username">Username</string>
-    <string name="prompt_password">Password</string>
     <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
+    <string name="action_create_activity">Create New Account</string>
+
+    <string name="create_title">Create Account</string>
     <string name="action_create_account">Create Account</string>
-    <string name="login_title">Login to Steazy</string>
-    <string name="create_title">Create a New Steazy Account</string>
 
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>

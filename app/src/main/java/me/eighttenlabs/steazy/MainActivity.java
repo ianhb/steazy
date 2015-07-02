@@ -1,7 +1,6 @@
 package me.eighttenlabs.steazy;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,7 +12,6 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -24,7 +22,6 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -50,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
-    private static final String SPOTIFY_CALLBACK = "steazy://callback";
-    private static final int REQUEST_CODE = 1337;
+    public static final String SPOTIFY_CALLBACK = "steazy://callback";
+    public static final int REQUEST_CODE = 1337;
 
 
     ArrayList<Song> searchedSongs;
@@ -66,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton playPauseButton;
     private TextView songName;
     private TextView songArtist;
+    private ListView listView;
 
 
     @Override
@@ -80,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton = (ImageButton) findViewById(R.id.play_pause_button);
         songName = (TextView) findViewById(R.id.song_title);
         songArtist = (TextView) findViewById(R.id.song_artist);
+        listView = (ListView) findViewById(R.id.songs);
 
         playPauseButton.setImageResource(R.drawable.ic_action_play);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -121,8 +120,6 @@ public class MainActivity extends AppCompatActivity {
         queue = new ArrayList<>();
 
         setupService();
-        Requests.setQueue(getApplicationContext());
-        new Requests.Login("admin", "admin");
     }
 
     private void setupService() {
@@ -146,21 +143,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setSongList() {
-        ListView songList = (ListView) findViewById(R.id.songs);
-        songList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 songPicked(view);
             }
         });
         SongAdapter songAdapter = new SongAdapter(getApplicationContext(), searchedSongs);
-        songList.setAdapter(songAdapter);
-        registerForContextMenu(songList);
+        listView.setAdapter(songAdapter);
+        registerForContextMenu(listView);
+        invalidateOptionsMenu();
     }
 
     private void setPlaylistList() {
-        ListView playlistList = (ListView) findViewById(R.id.songs);
-        playlistList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 searchedSongs = Playlist.getPlaylist().get(Integer.parseInt(view.getTag().toString())).getSongs();
@@ -168,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         PlaylistAdapter playlistAdapter = new PlaylistAdapter(getApplicationContext(), Playlist.getPlaylist());
-        playlistList.setAdapter(playlistAdapter);
+        listView.setAdapter(playlistAdapter);
+        invalidateOptionsMenu();
     }
 
     public void songPicked(View view) {
@@ -250,7 +247,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main_song, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (listView.getAdapter() instanceof SongAdapter) {
+            menu.clear();
+            getMenuInflater().inflate(R.menu.menu_main_song, menu);
+        } else if (listView.getAdapter() instanceof PlaylistAdapter) {
+            menu.clear();
+            getMenuInflater().inflate(R.menu.menu_main_playlist, menu);
+        }
         return true;
     }
 
@@ -315,6 +324,9 @@ public class MainActivity extends AppCompatActivity {
                 setPlaylistList();
                 break;
 
+            case R.id.action_new_playlist:
+                break;
+
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -326,10 +338,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (((ListView)findViewById(R.id.songs)).getAdapter() instanceof SongAdapter) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.context_menu_main, menu);
-        }
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu_main, menu);
     }
 
     @Override
