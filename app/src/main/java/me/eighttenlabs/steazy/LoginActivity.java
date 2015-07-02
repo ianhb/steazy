@@ -4,7 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,9 +21,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.Response;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +35,7 @@ public class LoginActivity extends Activity {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    private SharedPreferences prefs;
 
     // UI references.
     private EditText mUsernameView;
@@ -46,6 +46,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
@@ -83,6 +84,16 @@ public class LoginActivity extends Activity {
             }
         });
         Requests.setQueue(getApplicationContext());
+
+        prefs = getPreferences(Context.MODE_PRIVATE);
+        String username = prefs.getString(getString(R.string.login_username), null);
+        String password = prefs.getString(getString(R.string.login_password), null);
+
+        if (username != null && password != null) {
+            mUsernameView.setText(username);
+            mPasswordView.setText(password);
+            attemptLogin();
+        }
     }
 
 
@@ -135,11 +146,12 @@ public class LoginActivity extends Activity {
     }
 
     private boolean isUsernameValid(String username) {
+        //TODO: Replace with better username logic
         return username.length() > 4;
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
+        //TODO: Replace with better password logic
         return password.length() > 4;
     }
 
@@ -181,11 +193,13 @@ public class LoginActivity extends Activity {
 
     @Override
     public void finish() {
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(
-                MainActivity.SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, MainActivity.SPOTIFY_CALLBACK);
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, MainActivity.REQUEST_CODE, request);
+        if (!prefs.contains(getString(R.string.login_username)) ||
+                !prefs.contains(getString(R.string.login_password))) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(getString(R.string.login_username), mUsernameView.getText().toString());
+            editor.putString(getString(R.string.login_password), mPasswordView.getText().toString());
+            editor.apply();
+        }
         startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -206,8 +220,6 @@ public class LoginActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             Response.Listener<JSONObject> loginListener = new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject jsonObject) {
@@ -224,8 +236,6 @@ public class LoginActivity extends Activity {
             };
             new Requests.Login(mUsername, mPassword, loginListener);
 
-
-            // TODO: register the new account here.
             while (success == null) {
                 try {
                     Thread.sleep(10);
