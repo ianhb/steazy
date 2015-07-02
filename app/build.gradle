@@ -1,14 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'ian'
-            keyPassword System.getenv("KEYPWD")
-            storeFile file('C:/Users/Ian/AndroidStudioProjects/Keystore/810labskey.jks')
-            storePassword System.getenv("KSTOREPWD")
-        }
-    }
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
     defaultConfig {
