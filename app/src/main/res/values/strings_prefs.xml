@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="login_prefs">me.eighttenlabs.steazy.LOGIN_PREFS</string>
+    <string name="login_username">username_key</string>
+    <string name="login_password">password_key</string>
+
+
+</resources>

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -57,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private MusicService musicService;
     private boolean musicBound;
     private Intent playIntent;
-
-    private SharedPreferences preferences;
 
     private ImageButton playPauseButton;
     private TextView songName;
@@ -115,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         AuthenticationRequest request = builder.build();
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
+
         // Holds songs to display
         searchedSongs = new ArrayList<>();
         queue = new ArrayList<>();
@@ -170,26 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void songPicked(View view) {
         play(Integer.parseInt(view.getTag().toString()));
-    }
-
-    public void searchCallback(ArrayList<Song> searchedSongs) {
-        if (this.searchedSongs.isEmpty()) {
-            this.searchedSongs = searchedSongs;
-        } else {
-            ArrayList<Song> returnList = new ArrayList<>();
-            while ((!this.searchedSongs.isEmpty() || !searchedSongs.isEmpty()) && returnList.size() < 40) {
-                if (!this.searchedSongs.isEmpty()) {
-                    returnList.add(this.searchedSongs.get(0));
-                    this.searchedSongs.remove(0);
-                }
-                if (!searchedSongs.isEmpty()) {
-                    returnList.add(searchedSongs.get(0));
-                    searchedSongs.remove(0);
-                }
-            }
-            this.searchedSongs = returnList;
-        }
-        setSongList();
     }
 
     @Override
