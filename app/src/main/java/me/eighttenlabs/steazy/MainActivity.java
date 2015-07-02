@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Send auth request to Spotify for playback
+
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
         builder.setScopes(new String[]{"streaming"});
         AuthenticationRequest request = builder.build();
