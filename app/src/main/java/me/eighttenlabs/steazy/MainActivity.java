@@ -49,9 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SPOTIFY_CALLBACK = "steazy://callback";
     public static final int REQUEST_CODE = 1337;
 
-
     ArrayList<Song> searchedSongs;
-    ArrayList<Song> queue;
     private boolean paused = false;
     private MusicService musicService;
     private boolean musicBound;
@@ -65,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // View setup
+        // UI setup
         ImageButton skipButton;
         ImageButton previousButton;
         super.onCreate(savedInstanceState);
@@ -107,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Send auth request to Spotify for playback
-
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
         builder.setScopes(new String[]{"streaming"});
         AuthenticationRequest request = builder.build();
@@ -116,8 +113,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Holds songs to display
         searchedSongs = new ArrayList<>();
-        queue = new ArrayList<>();
 
+        // Sets up network queue
+        Requests.setQueue(getApplicationContext());
+
+        // Sets up the playback service
         setupService();
     }
 

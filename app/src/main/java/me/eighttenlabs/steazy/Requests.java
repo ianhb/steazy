@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
@@ -16,9 +15,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +42,7 @@ public class Requests {
     public static final int POST = JsonObjectRequest.Method.POST;
     public static final int DELETE = JsonObjectRequest.Method.DELETE;
 
-    private static String BASEURL;
+    public static String BASEURL;
     private static NetworkQueue QUEUE;
     private static String TOKEN = "";
 
@@ -69,56 +77,59 @@ public class Requests {
         }
     }
 
-    public static class Login {
+    public static String genericPostRequest(Map<String, String> data, String url) {
+        String response = "";
 
-        /***
-         * Sends a request to the server to get a token assigned to an account given a matching username and password.
-         * Allows the caller to define a listener to respond to incorrect username and password
-         * @param username username to sign in with
-         * @param password password matching username
-         * @param listener listener to act on server's response
-         */
-        public Login(final String username, final String password, Response.Listener<JSONObject> listener) {
-            JSONObject json = new JSONObject();
+        try {
+            URL connUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) connUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setReadTimeout(5000);
+            connection.setConnectTimeout(5000);
+            OutputStream os = connection.getOutputStream();
+            BufferedWriter connWriter = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+            connWriter.write(makePostData(data));
+            connWriter.flush();
+            connWriter.close();
+            os.close();
+
+            Log.d("Post Data", makePostData(data));
+            String line;
+            InputStream is;
             try {
-                json.put("username", username);
-                json.put("password", password);
-            } catch (JSONException e) {
-                Log.d("JSON Exception", e.toString());
-            }
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST,
-                    BASEURL + "/login/",
-                    json,
-                    listener
-                    , new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("Request Error", error.toString());
-                }
-            }
-            );
-            QUEUE.addtToRequestQueue(request);
-        }
+                is = connection.getInputStream();
 
-        /***
-         * Logs in and on successful login, sets TOKEN to the user token. Should only be used in DEBUG
-         * @param username username to sign in with
-         * @param password password matching username
-         */
-        public Login(final String username, final String password) {
-            this(username, password, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        TOKEN = response.getString("token");
-                        Log.d("Login", TOKEN);
-                    } catch (JSONException e) {
-                        Log.d("Login Failed", e.getMessage());
-                    }
-                }
-            });
+            } catch (FileNotFoundException e) {
+                is = connection.getErrorStream();
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            while ((line = br.readLine()) != null) {
+                response += line;
+            }
+            br.close();
+            is.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return response;
+    }
+
+    private static String makePostData(Map<String, String> data) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            if (first) {
+                first = false;
+            } else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+        return result.toString();
     }
 
     private static class TokenRequest {
@@ -233,7 +244,6 @@ public class Requests {
         }
     }
 
-
     public static class GetPlaylists {
         /***
          * Returns the users playlists
@@ -309,42 +319,7 @@ public class Requests {
         }
     }
 
-    public static class CreateAccount {
-        /**
-         * Sends a network request to create an account on the backend
-         * If connection is successful, returns to listener a JSON object of {'key':token for new account}
-         * If username or email is taken, returns a JSON object of
-         * {'username'/'email': ["This field must be unique"}
-         * If connection fails, calls eListener.
-         *
-         * @param username  username for new account
-         * @param password  password for new account
-         * @param email     email for new account
-         * @param listener  listener to process feedback from server
-         * @param eListener listener to process errors in connection
-         */
-        public CreateAccount(String username, String password, String email,
-                             Response.Listener<JSONObject> listener,
-                             Response.ErrorListener eListener) {
-            try {
-                JSONObject accountData = new JSONObject();
-                accountData.put("email", email);
-                accountData.put("username", username);
-                accountData.put("password", password);
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                        BASEURL + "/users/create/",
-                        accountData,
-                        listener,
-                        eListener
-                );
-                QUEUE.addtToRequestQueue(request);
-            } catch (JSONException e) {
-                Log.d("Json Error", e.toString());
-            }
-        }
-    }
-
-    /***
+    /**
      * Used to find the stream for a Soundcloud song
      */
     public static class SoundcloudRedirect extends AsyncTask<Song, Void, String> {

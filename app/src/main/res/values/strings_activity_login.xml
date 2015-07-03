@@ -10,10 +10,14 @@
     <string name="action_create_activity">Create New Account</string>
 
     <string name="create_title">Create Account</string>
-    <string name="action_create_account">Create Account</string>
+    <string name="action_create_account">Create Account</string>.
+    <string name="ime_create_account">Create</string>
 
+    <string name="error_invalid_username">This username is too short</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_inuse_username">This username is already in use</string>
+    <string name="error_inuse_email">This email is already in use</string>
 </resources>

@@ -20,10 +20,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -83,9 +84,9 @@ public class LoginActivity extends Activity {
                 startActivity(createIntent);
             }
         });
-        Requests.setQueue(getApplicationContext());
 
-        prefs = getPreferences(Context.MODE_PRIVATE);
+        // Attempts to login if there are credentials saved on the device
+        prefs = getSharedPreferences(getString(R.string.login_prefs), Context.MODE_PRIVATE);
         String username = prefs.getString(getString(R.string.login_username), null);
         String password = prefs.getString(getString(R.string.login_password), null);
 
@@ -98,7 +99,7 @@ public class LoginActivity extends Activity {
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
@@ -118,17 +119,28 @@ public class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password) || TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+        // Check if user entered a username
+        if (TextUtils.isEmpty(username)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        }
+        // Check if username passes basic validity test
+        else if (!CreateAccountActivity.isUsernameValid(username)) {
+            mUsernameView.setText(getString(R.string.error_invalid_username));
+            focusView = mUsernameView;
+            cancel = true;
+        }
+        // Check if user entered a password
+        else if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
         }
-
-        // Check for a valid username
-        if (!TextUtils.isEmpty(username) && !isUsernameValid(username) || TextUtils.isEmpty(username)) {
-            mUsernameView.setError(getString(R.string.error_field_required));
-            focusView = mUsernameView;
+        // Check if password passes basic validity test
+        else if (!CreateAccountActivity.isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
             cancel = true;
         }
 
@@ -143,16 +155,6 @@ public class LoginActivity extends Activity {
             mAuthTask = new UserLoginTask(username, password);
             mAuthTask.execute((Void) null);
         }
-    }
-
-    private boolean isUsernameValid(String username) {
-        //TODO: Replace with better username logic
-        return username.length() > 4;
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace with better password logic
-        return password.length() > 4;
     }
 
     /**
@@ -191,6 +193,9 @@ public class LoginActivity extends Activity {
         }
     }
 
+    /**
+     * Saves credentials to shared preferences and starts main activity
+     */
     @Override
     public void finish() {
         if (!prefs.contains(getString(R.string.login_username)) ||
@@ -201,17 +206,17 @@ public class LoginActivity extends Activity {
             editor.apply();
         }
         startActivity(new Intent(this, MainActivity.class));
+        super.finish();
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mUsername;
         private final String mPassword;
-        private Boolean success;
 
         UserLoginTask(String username, String password) {
             mUsername = username;
@@ -220,30 +225,22 @@ public class LoginActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            Response.Listener<JSONObject> loginListener = new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    Log.d("Response", jsonObject.toString());
-                    try {
-                        String token = jsonObject.getString("token");
-                        Requests.setToken(token);
-                        success = true;
-                    } catch (JSONException e) {
-                        success = false;
-                        Log.e("Error", e.toString());
-                    }
-                }
-            };
-            new Requests.Login(mUsername, mPassword, loginListener);
+            Map<String, String> data = new HashMap<>();
+            data.put("username", mUsername);
+            data.put("password", mPassword);
 
-            while (success == null) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    Log.d("Sleep interupt", "Bad Login");
+            String response = Requests.genericPostRequest(data, Requests.BASEURL + "login/");
+
+            try {
+                JSONObject responseJson = new JSONObject(response);
+                if (responseJson.has("token")) {
+                    Requests.setToken(responseJson.getString("token"));
+                    return true;
                 }
+            } catch (JSONException e) {
+                Log.e("JSON Error", response);
             }
-            return success;
+            return false;
         }
 
         @Override
