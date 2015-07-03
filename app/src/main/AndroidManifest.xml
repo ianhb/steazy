@@ -49,7 +49,8 @@
         </activity>
         <activity
             android:name=".CreateAccountActivity"
-            android:label="@string/title_activity_create_account"></activity>
+            android:label="@string/title_activity_create_account"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
 
 </manifest>

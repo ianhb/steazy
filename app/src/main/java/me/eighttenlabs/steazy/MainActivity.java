@@ -21,6 +21,7 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -36,6 +37,7 @@ import com.spotify.sdk.android.player.Spotify;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -113,9 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Holds songs to display
         searchedSongs = new ArrayList<>();
-
-        // Sets up network queue
-        Requests.setQueue(getApplicationContext());
 
         // Sets up the playback service
         setupService();
@@ -304,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.action_new_playlist:
+                newPlaylistDialog();
                 break;
 
             case R.id.action_settings:
@@ -425,5 +425,56 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void newPlaylistDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.create_playlist_title));
+        View layout = getLayoutInflater().inflate(R.layout.create_playlist_dialog, null);
+        builder.setView(layout);
+        final EditText nameBox = (EditText) layout.findViewById(R.id.create_playlist_dialog_box);
+        Button cancelButton = (Button) layout.findViewById(R.id.create_playlist_dialog_cancel);
+        Button createButton = (Button) layout.findViewById(R.id.create_playlist_dialog_create);
+        final AlertDialog dialog = builder.create();
+        nameBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                new Requests.PostPlaylist(v.getText().toString(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        ArrayList<Playlist> current = Playlist.getPlaylist();
+                        current.add(Playlist.PlaylistFromJSON(jsonObject));
+                        Playlist.setPlaylist(current);
+                        setPlaylistList();
+                    }
+                });
+                dialog.dismiss();
+                return true;
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Requests.PostPlaylist(nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        ArrayList<Playlist> current = Playlist.getPlaylist();
+                        current.add(Playlist.PlaylistFromJSON(jsonObject));
+                        Playlist.setPlaylist(current);
+                        setPlaylistList();
+                    }
+                });
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+        nameBox.requestFocus();
     }
 }

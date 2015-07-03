@@ -48,6 +48,9 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Sets up network queue
+        Requests.setQueue(getApplicationContext());
+
         setContentView(R.layout.activity_login);
 
         // Set up the login form.

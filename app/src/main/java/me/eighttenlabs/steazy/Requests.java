@@ -247,18 +247,36 @@ public class Requests {
     public static class GetPlaylists {
         /***
          * Returns the users playlists
-         *
          * Playlists are returned as a JSONArray of Playlists
          * Playlists have format
          *  {"id":table id of playlist, "name":name, "owner_name":owner's name, "owner":table id of owner, "date_created":string of create date+time
          *  "songs":[array of songs]}
-         *
          * @param listener listener to respond to server's response
          */
         public GetPlaylists(Response.Listener<JSONArray> listener) {
-            new TokenArrayRequest("/playlists/", null, Requests.GET, listener, null);
+            new TokenArrayRequest("/playlists/", null, GET, listener, null);
         }
     }
+
+    public static class PostPlaylist {
+        /**
+         * Creates a new playlist
+         * Returns the playlist's data
+         *
+         * @param name     name to give new playlist
+         * @param listener listener to respond to response
+         */
+        public PostPlaylist(String name, Response.Listener<JSONObject> listener) {
+            try {
+                JSONObject data = new JSONObject();
+                data.put("name", name);
+                new TokenRequest("/playlists/", data, POST, listener, null);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public static class AddSongToPlaylist {
         /***
