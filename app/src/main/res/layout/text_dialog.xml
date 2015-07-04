@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/create_playlist_dialog_box"
+        android:id="@+id/dialog_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -15,18 +15,17 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/create_playlist_dialog_cancel"
+            android:id="@+id/dialog_cancel_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/create_playlist_cancel" />
 
         <Button
-            android:id="@+id/create_playlist_dialog_create"
+            android:id="@+id/dialog_confirm_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/create_playlist_create" />
+            android:layout_weight="1" />
 
     </LinearLayout>
 

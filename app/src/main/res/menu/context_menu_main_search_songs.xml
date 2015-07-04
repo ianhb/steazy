@@ -3,13 +3,12 @@
 
     <item
         android:id="@+id/play_song"
-        android:title="Play" />
+        android:title="@string/context_menu_play" />
     <item
         android:id="@+id/queue_song"
-        android:title="Queue" />
-
+        android:title="@string/context_menu_queue" />
     <item
         android:id="@+id/add_song_to_playlist"
-        android:title="Add Song to Playlist" />
+        android:title="@string/context_menu_add_to_playlist" />
 
 </menu>

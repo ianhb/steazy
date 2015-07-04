@@ -54,6 +54,12 @@ public class MusicService extends Service {
         userSkip = false;
         mediaPlayerListener = new MediaPlayerListener(this);
         spotifyListener = new SpotifyListener(this);
+        aPlayer = new MediaPlayer();
+        aPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        aPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        aPlayer.setOnPreparedListener(mediaPlayerListener);
+        aPlayer.setOnErrorListener(mediaPlayerListener);
+        aPlayer.setOnCompletionListener(mediaPlayerListener);
     }
 
     /**
@@ -74,7 +80,7 @@ public class MusicService extends Service {
         }
         activity.onSongChanged(currentSong);
         makeNotification();
-        new Requests.Play(currentSong);
+        Requests.play(currentSong);
     }
 
     /**
@@ -159,20 +165,15 @@ public class MusicService extends Service {
      * Passes the Spotify player once it is initialized
      *
      * @param player   Spotify Player to used
-     * @param activity activity (used to change display)
      */
-    public void setPlayers(Player player, MainActivity activity) {
+    public void setPlayers(Player player) {
         sPlayer = player;
         sPlayer.addPlayerNotificationCallback(spotifyListener);
         sPlayer.getPlayerState(spotifyListener);
+    }
 
+    public void setActivity(MainActivity activity) {
         this.activity = activity;
-        aPlayer = new MediaPlayer();
-        aPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        aPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        aPlayer.setOnPreparedListener(mediaPlayerListener);
-        aPlayer.setOnErrorListener(mediaPlayerListener);
-        aPlayer.setOnCompletionListener(mediaPlayerListener);
     }
 
     @Override

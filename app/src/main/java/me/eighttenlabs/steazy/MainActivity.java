@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -52,10 +53,11 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 1337;
 
     ArrayList<Song> searchedSongs;
-    private boolean paused = false;
     private MusicService musicService;
     private boolean musicBound;
     private Intent playIntent;
+
+    private Playlist displayingPlaylist;
 
     private ImageButton playPauseButton;
     private TextView songName;
@@ -116,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
         // Holds songs to display
         searchedSongs = new ArrayList<>();
 
+        displayingPlaylist = null;
+
         // Sets up the playback service
         setupService();
     }
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
                 musicService = binder.getService();
                 setMusicBound(true);
+                musicService.setActivity(MainActivity.this);
             }
 
             @Override
@@ -157,12 +162,15 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                searchedSongs = Playlist.getPlaylist().get(Integer.parseInt(view.getTag().toString())).getSongs();
+                Playlist playlist = Playlist.getPlaylist().get(Integer.parseInt(view.getTag().toString()));
+                searchedSongs = playlist.getSongs();
                 setSongList();
+                displayingPlaylist = playlist;
             }
         });
         PlaylistAdapter playlistAdapter = new PlaylistAdapter(getApplicationContext(), Playlist.getPlaylist());
         listView.setAdapter(playlistAdapter);
+        registerForContextMenu(listView);
         invalidateOptionsMenu();
     }
 
@@ -181,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 Spotify.getPlayer(playerConfig, musicService, new Player.InitializationObserver() {
                     @Override
                     public void onInitialized(Player player) {
-                        musicService.setPlayers(player, MainActivity.this);
+                        musicService.setPlayers(player);
                     }
                     @Override
                     public void onError(Throwable throwable) {
@@ -200,15 +208,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        paused = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (paused) {
-            paused = false;
-        }
     }
 
     @Override
@@ -318,15 +322,28 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu_main, menu);
+        if (listView.getAdapter() instanceof PlaylistAdapter) {
+            inflater.inflate(R.menu.context_menu_main_playlist, menu);
+        } else if (displayingPlaylist != null) {
+            inflater.inflate(R.menu.context_menu_main_playlist_songs, menu);
+        } else {
+            inflater.inflate(R.menu.context_menu_main_search_songs, menu);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Song song = searchedSongs.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+        int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
+        Song song = null;
+        Playlist playlist = null;
+        if (listView.getAdapter() instanceof SongAdapter) {
+            song = searchedSongs.get(position);
+        } else if (listView.getAdapter() instanceof PlaylistAdapter) {
+            playlist = Playlist.getPlaylist().get(position);
+        }
         switch (item.getItemId()) {
             case R.id.play_song:
-                play(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
+                play(position);
                 return true;
             case R.id.queue_song:
                 queue(song);
@@ -334,13 +351,25 @@ public class MainActivity extends AppCompatActivity {
             case R.id.add_song_to_playlist:
                 addSongDialog(song);
                 return true;
+            case R.id.remove_song_from_playlist:
+                try {
+                    displayingPlaylist.deleteSong(song);
+                } catch (NullPointerException e) {
+                    Log.d("NullPointer", "Playlist is null (shouldn't be possible to get here)");
+                }
+                return true;
+            case R.id.context_menu_playlist_rename:
+                renamePlaylistDialog(playlist);
+                return true;
+            case R.id.context_menu_playlist_delete:
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
     }
 
     public void getUserPlaylists() {
-        new Requests.GetPlaylists(new Response.Listener<JSONArray>() {
+        Requests.getPlaylists(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
                 ArrayList<Playlist> playlists = new ArrayList<>();
@@ -357,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchSongs(String query) {
-        new Requests.Search(query, Requests.Search.ALL, new Response.Listener<JSONArray>() {
+        Requests.search(query, Requests.SEARCH_ALL, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 ArrayList<Song> songs1 = new ArrayList<>();
@@ -370,12 +399,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
+                displayingPlaylist = null;
             }
         });
     }
 
     public void fastSearch(String query) {
-        new Requests.Search(query, Requests.Search.DATABASE, new Response.Listener<JSONArray>() {
+        Requests.search(query, Requests.SEARCH_DATABASE, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 ArrayList<Song> songs1 = new ArrayList<>();
@@ -388,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
+                displayingPlaylist = null;
             }
         });
     }
@@ -420,7 +451,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setTitle("Select a Playlist").setItems(playlistNames, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new Requests.AddSongToPlaylist(song.getId(), playlists.get(which).getId());
+                Requests.addSongToPlaylist(song.getId(), playlists.get(which).getId());
             }
         });
         AlertDialog dialog = builder.create();
@@ -430,16 +461,16 @@ public class MainActivity extends AppCompatActivity {
     private void newPlaylistDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.create_playlist_title));
-        View layout = getLayoutInflater().inflate(R.layout.create_playlist_dialog, null);
+        View layout = getLayoutInflater().inflate(R.layout.text_dialog, null);
         builder.setView(layout);
-        final EditText nameBox = (EditText) layout.findViewById(R.id.create_playlist_dialog_box);
-        Button cancelButton = (Button) layout.findViewById(R.id.create_playlist_dialog_cancel);
-        Button createButton = (Button) layout.findViewById(R.id.create_playlist_dialog_create);
+        final EditText nameBox = (EditText) layout.findViewById(R.id.dialog_box);
+        Button cancelButton = (Button) layout.findViewById(R.id.dialog_cancel_button);
+        Button createButton = (Button) layout.findViewById(R.id.dialog_confirm_button);
         final AlertDialog dialog = builder.create();
         nameBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                new Requests.PostPlaylist(v.getText().toString(), new Response.Listener<JSONObject>() {
+                Requests.postPlaylist(v.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         ArrayList<Playlist> current = Playlist.getPlaylist();
@@ -452,7 +483,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -462,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Requests.PostPlaylist(nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                Requests.postPlaylist(nameBox.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         ArrayList<Playlist> current = Playlist.getPlaylist();
@@ -474,6 +504,54 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+        createButton.setText(getString(R.string.create_playlist_create));
+        dialog.show();
+        nameBox.requestFocus();
+    }
+
+    private void renamePlaylistDialog(final Playlist playlist) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.rename_playlist_title));
+        View layout = getLayoutInflater().inflate(R.layout.text_dialog, null);
+        builder.setView(layout);
+        final EditText nameBox = (EditText) layout.findViewById(R.id.dialog_box);
+        Button cancelButton = (Button) layout.findViewById(R.id.dialog_cancel_button);
+        Button renameButton = (Button) layout.findViewById(R.id.dialog_confirm_button);
+        final AlertDialog dialog = builder.create();
+        nameBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                Requests.putPlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        playlist.setName(nameBox.getText().toString());
+                        setPlaylistList();
+                    }
+                });
+                dialog.dismiss();
+                return true;
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        renameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Requests.putPlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        playlist.setName(nameBox.getText().toString());
+                        setPlaylistList();
+                    }
+                });
+                dialog.dismiss();
+            }
+        });
+        renameButton.setText(getString(R.string.rename_playlist_rename));
         dialog.show();
         nameBox.requestFocus();
     }

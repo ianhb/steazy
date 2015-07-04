@@ -15,7 +15,7 @@ android {
             resValue("string", "baseUrl", "http://steazy-dev.elasticbeanstalk.com/")
         }
         release {
-            resValue("string", "baseUrl", "http://steazy-prod.elasticbeanstalk.com/")
+            resValue("string", "baseUrl", "http://steazy-dev.elasticbeanstalk.com/")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
