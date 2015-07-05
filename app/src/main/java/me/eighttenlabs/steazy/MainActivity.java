@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -172,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(playlistAdapter);
         registerForContextMenu(listView);
         invalidateOptionsMenu();
+        displayingPlaylist = null;
     }
 
     public void songPicked(View view) {
@@ -343,25 +343,40 @@ public class MainActivity extends AppCompatActivity {
         }
         switch (item.getItemId()) {
             case R.id.play_song:
+                if (song == null) {
+                    throw new AssertionError("Should only be called on song");
+                }
                 play(position);
                 return true;
             case R.id.queue_song:
+                if (song == null) {
+                    throw new AssertionError("Should only be called on song");
+                }
                 queue(song);
                 return true;
             case R.id.add_song_to_playlist:
+                if (song == null) {
+                    throw new AssertionError("Should only be called on song");
+                }
                 addSongDialog(song);
                 return true;
             case R.id.remove_song_from_playlist:
-                try {
-                    displayingPlaylist.deleteSong(song);
-                } catch (NullPointerException e) {
-                    Log.d("NullPointer", "Playlist is null (shouldn't be possible to get here)");
+                if (song == null) {
+                    throw new AssertionError("Should only be called on song");
                 }
+                displayingPlaylist.deleteSong(song);
                 return true;
             case R.id.context_menu_playlist_rename:
+                if (playlist == null) {
+                    throw new AssertionError("Should only be called on playlist");
+                }
                 renamePlaylistDialog(playlist);
                 return true;
             case R.id.context_menu_playlist_delete:
+                if (playlist == null) {
+                    throw new AssertionError("Should only be called on playlist");
+                }
+                deletePlaylistDialog(playlist);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -554,5 +569,9 @@ public class MainActivity extends AppCompatActivity {
         renameButton.setText(getString(R.string.rename_playlist_rename));
         dialog.show();
         nameBox.requestFocus();
+    }
+
+    public void deletePlaylistDialog(final Playlist playlist) {
+        Requests.deletePlaylist(playlist.getId(), null);
     }
 }

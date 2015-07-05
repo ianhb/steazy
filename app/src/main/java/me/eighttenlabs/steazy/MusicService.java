@@ -101,7 +101,6 @@ public class MusicService extends Service {
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int request = am.requestAudioFocus(af, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
     }
 
     /**

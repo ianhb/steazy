@@ -200,6 +200,10 @@ public class Requests {
         }
     }
 
+    public static void deletePlaylist(int pk, Response.Listener<JSONObject> listener) {
+        new TokenRequest("playlists/" + pk + "/", null, DELETE, listener, null);
+    }
+
         /***
          * Adds a song to a playlist
          * @param songId id of song to add

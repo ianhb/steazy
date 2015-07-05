@@ -62,6 +62,14 @@ public class Playlist {
         Playlist.playlist = playlist;
     }
 
+    public static void removePlaylist(int id) {
+        for (Playlist pL : playlist) {
+            if (pL.getId() == id) {
+                playlist.remove(pL);
+            }
+        }
+    }
+
     public int getId() {
         return id;
     }
