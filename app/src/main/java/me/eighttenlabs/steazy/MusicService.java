@@ -113,9 +113,14 @@ public class MusicService extends Service {
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             Notification.Builder builder = new Notification.Builder(this);
-            builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
-                    .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name))
-            ;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
+                        .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name);
+            } else {
+                builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.lp_notification).setTicker(currentSong.name)
+                        .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name));
+            }
             Notification notification = builder.build();
             startForeground(1, notification);
         }
