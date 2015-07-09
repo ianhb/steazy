@@ -14,6 +14,14 @@
     <string name="create_playlist_create">Create</string>
     <string name="rename_playlist_title">Rename Playlist</string>
     <string name="rename_playlist_rename">Rename</string>
+    <string name="delete_playlist_title">Delete</string>
+    <string name="delete_playlist_delete">Really Delete?</string>
+
+    <string name="lost_spotify_title">Spotify Permission Lost</string>
+    <string name="lost_spotify_content">This account is playing elsewhere, request permission to play here?</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <string name="context_menu_play">Play</string>
     <string name="context_menu_queue">Queue</string>

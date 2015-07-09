@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     musicService.start();
                     playPauseButton.setImageResource(R.drawable.ic_action_pause);
                 }
+                togglePlay();
             }
         });
         skipButton.setOnClickListener(new View.OnClickListener() {
@@ -108,11 +109,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Send auth request to Spotify for playback
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-
+        requestSpotify();
 
         // Holds songs to display
         searchedSongs = new ArrayList<>();
@@ -144,6 +141,13 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().startService(playIntent);
     }
 
+    public void requestSpotify() {
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
+        builder.setScopes(new String[]{"streaming"});
+        AuthenticationRequest request = builder.build();
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+    }
+
     private void setSongList() {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -172,6 +176,14 @@ public class MainActivity extends AppCompatActivity {
         registerForContextMenu(listView);
         invalidateOptionsMenu();
         displayingPlaylist = null;
+    }
+
+    public void togglePlay() {
+        if (musicService.isPlaying()) {
+            playPauseButton.setImageResource(R.drawable.ic_action_pause);
+        } else {
+            playPauseButton.setImageResource(R.drawable.ic_action_play);
+        }
     }
 
     public void songPicked(View view) {
@@ -572,6 +584,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deletePlaylistDialog(final Playlist playlist) {
-        Requests.deletePlaylist(playlist.getId(), null);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.delete_playlist_title))
+                .setMessage(getString(R.string.delete_playlist_delete)).
+                setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Requests.deletePlaylist(playlist.getId(), null);
+                        Playlist.removePlaylist(playlist.getId());
+                        setPlaylistList();
+                    }
+                }).setNegativeButton(R.string.no, null).show();
     }
 }

@@ -118,6 +118,7 @@ public class MusicService extends Service {
                 builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.ic_launcher).setTicker(currentSong.name)
                         .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name);
             } else {
+                // TODO: Add interactive notifications
                 builder.setContentIntent(pendingIntent).setSmallIcon(R.drawable.lp_notification).setTicker(currentSong.name)
                         .setOngoing(true).setContentTitle("Playing").setContentText(currentSong.name).setStyle(new Notification.BigTextStyle().bigText(currentSong.name));
             }
@@ -244,6 +245,7 @@ public class MusicService extends Service {
             aPlayer.pause();
         }
         stopForeground(true);
+        activity.togglePlay();
     }
 
     /***

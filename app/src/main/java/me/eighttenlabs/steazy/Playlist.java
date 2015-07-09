@@ -66,6 +66,7 @@ public class Playlist {
         for (Playlist pL : playlist) {
             if (pL.getId() == id) {
                 playlist.remove(pL);
+                return;
             }
         }
     }

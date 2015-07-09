@@ -1,6 +1,7 @@
 package me.eighttenlabs.steazy;
 
-import android.util.Log;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
@@ -23,9 +24,19 @@ public class SpotifyListener implements PlayerNotificationCallback, PlayerStateC
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         state = playerState;
-        Log.i("SPOTIFY STATE", String.valueOf(state.durationInMs - state.positionInMs));
         if (eventType == EventType.END_OF_CONTEXT) {
             service.playNext();
+        }
+        if (eventType == EventType.LOST_PERMISSION) {
+            service.pause();
+            new AlertDialog.Builder(service.activity).
+                    setTitle(R.string.lost_spotify_title).setMessage(R.string.lost_spotify_content).
+                    setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            service.activity.requestSpotify();
+                        }
+                    }).setNegativeButton(R.string.no, null).show();
         }
     }
 
