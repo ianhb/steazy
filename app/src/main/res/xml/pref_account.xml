@@ -4,9 +4,9 @@
     <PreferenceCategory
         android:key="pref_account_settings"
         android:title="@string/pref_account_title">
-        <Preference android:title="@string/login">
-            <intent android:action="me.eighttenlabs.steazy.LoginActivity" />
-        </Preference>
+        <Preference
+            android:key="pref_logout"
+            android:title="@string/logout" />
     </PreferenceCategory>
 
 </PreferenceScreen>

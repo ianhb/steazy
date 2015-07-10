@@ -6,6 +6,8 @@
     <!-- Account Setting Strings -->
     <string name="pref_account_title">Account Settings</string>
     <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="logout_title">Logout of Steazy?</string>
 
 
 </resources>
