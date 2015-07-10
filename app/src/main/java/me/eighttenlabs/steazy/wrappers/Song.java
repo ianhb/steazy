@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.wrappers;
 
 import org.json.JSONException;
 import org.json.JSONObject;

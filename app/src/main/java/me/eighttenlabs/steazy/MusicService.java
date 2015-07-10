@@ -4,8 +4,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
@@ -17,6 +19,12 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
 
 import java.util.ArrayList;
+
+import me.eighttenlabs.steazy.activities.MainActivity;
+import me.eighttenlabs.steazy.networking.Requests;
+import me.eighttenlabs.steazy.playbacklisteners.MediaPlayerListener;
+import me.eighttenlabs.steazy.playbacklisteners.SpotifyListener;
+import me.eighttenlabs.steazy.wrappers.Song;
 
 /**
  * Music playing service
@@ -45,6 +53,9 @@ public class MusicService extends Service {
     private Song currentSong;
     private AudioManager am;
     private AudioManager.OnAudioFocusChangeListener af;
+    private NoisyAudioStreamReceiver noisyAudioStreamReceiver;
+    // Filters the intents
+    private IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 
     @Override
     public void onCreate() {
@@ -60,6 +71,8 @@ public class MusicService extends Service {
         aPlayer.setOnPreparedListener(mediaPlayerListener);
         aPlayer.setOnErrorListener(mediaPlayerListener);
         aPlayer.setOnCompletionListener(mediaPlayerListener);
+
+        noisyAudioStreamReceiver = new NoisyAudioStreamReceiver();
     }
 
     /**
@@ -67,7 +80,9 @@ public class MusicService extends Service {
      */
     public void playSong() {
         if (!isPlaying()){
-            pauseSystemPlayback();
+            if (!pauseSystemPlayback()) {
+                return;
+            }
         }
         currentSong = queue.get(queuePosition);
         switch (currentSong.source) {
@@ -86,7 +101,7 @@ public class MusicService extends Service {
     /**
      * Pauses system sounds when playback starts
      */
-    public void pauseSystemPlayback() {
+    public boolean pauseSystemPlayback() {
         af = new AudioManager.OnAudioFocusChangeListener() {
             @Override
             public void onAudioFocusChange(int focusChange) {
@@ -101,6 +116,8 @@ public class MusicService extends Service {
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int request = am.requestAudioFocus(af, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        registerReceiver(noisyAudioStreamReceiver, intentFilter);
+        return (request == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     }
 
     /**
@@ -137,7 +154,7 @@ public class MusicService extends Service {
 
     /**
      * Plays a Spotify song
-     * Precondition: currontSong.source = SPOTIFY
+     * Precondition: currentSong.source = SPOTIFY
      */
     private void playSpotifySong() {
         if (isPlaying()) {
@@ -239,7 +256,7 @@ public class MusicService extends Service {
     /***
      * Pauses playback
      */
-    void stop() {
+    public void stop() {
         sPlayer.pause();
         if (aPlayer.isPlaying()) {
             aPlayer.pause();
@@ -255,6 +272,7 @@ public class MusicService extends Service {
         stop();
         am.abandonAudioFocus(af);
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
+        unregisterReceiver(noisyAudioStreamReceiver);
     }
 
     /**
@@ -286,6 +304,7 @@ public class MusicService extends Service {
                 aPlayer.start();
                 break;
         }
+        pauseSystemPlayback();
         makeNotification();
     }
 
@@ -340,8 +359,21 @@ public class MusicService extends Service {
     }
 
     public class MusicBinder extends Binder {
-        MusicService getService() {
+        public MusicService getService() {
             return MusicService.this;
         }
     }
+
+    /**
+     * Used to pause playback if audio will play to speakers after headphone unplugged/disconnected
+     */
+    private class NoisyAudioStreamReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                pause();
+            }
+        }
+    }
+
 }

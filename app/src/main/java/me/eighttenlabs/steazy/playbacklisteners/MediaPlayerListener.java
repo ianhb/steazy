@@ -1,6 +1,8 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.playbacklisteners;
 
 import android.media.MediaPlayer;
+
+import me.eighttenlabs.steazy.MusicService;
 
 /**
  * Handles MediaPlayer callbacks

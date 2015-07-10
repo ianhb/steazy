@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.playbacklisteners;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
+
+import me.eighttenlabs.steazy.MusicService;
+import me.eighttenlabs.steazy.R;
 
 /**
  * Handles Spotify callbacks

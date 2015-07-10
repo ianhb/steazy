@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -25,6 +25,9 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import me.eighttenlabs.steazy.R;
+import me.eighttenlabs.steazy.networking.Requests;
 
 
 /**

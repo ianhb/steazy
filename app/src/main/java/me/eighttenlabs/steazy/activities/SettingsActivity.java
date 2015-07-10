@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,6 +10,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+
+import me.eighttenlabs.steazy.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

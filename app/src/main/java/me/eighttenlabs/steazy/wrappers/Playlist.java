@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.wrappers;
 
 import android.util.Log;
 import android.util.Pair;
@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import me.eighttenlabs.steazy.networking.Requests;
 
 /**
  * Class to wrap a playlist

@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import me.eighttenlabs.steazy.wrappers.Song;
+
 /**
  * SongAdapter to show songs in ListView
  *

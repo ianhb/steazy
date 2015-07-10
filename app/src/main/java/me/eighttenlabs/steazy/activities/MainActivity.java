@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.activities;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -41,7 +41,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import static me.eighttenlabs.steazy.Song.songFromJSON;
+import me.eighttenlabs.steazy.MusicService;
+import me.eighttenlabs.steazy.PlaylistAdapter;
+import me.eighttenlabs.steazy.R;
+import me.eighttenlabs.steazy.SongAdapter;
+import me.eighttenlabs.steazy.networking.Requests;
+import me.eighttenlabs.steazy.wrappers.Playlist;
+import me.eighttenlabs.steazy.wrappers.Song;
+
+import static me.eighttenlabs.steazy.wrappers.Song.songFromJSON;
 
 
 public class MainActivity extends AppCompatActivity {

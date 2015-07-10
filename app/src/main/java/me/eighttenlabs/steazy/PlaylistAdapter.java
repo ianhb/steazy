@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import me.eighttenlabs.steazy.wrappers.Playlist;
+
 /**
  * PlaylistAdapter to show playlists in ListView
  *

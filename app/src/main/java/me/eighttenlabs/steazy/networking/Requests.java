@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.networking;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -29,6 +29,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
+import me.eighttenlabs.steazy.BuildConfig;
+import me.eighttenlabs.steazy.R;
+import me.eighttenlabs.steazy.activities.MainActivity;
+import me.eighttenlabs.steazy.wrappers.Song;
 
 /**
  * Encompasses the network requests to the servers
