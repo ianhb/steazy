@@ -259,6 +259,8 @@ public class LoginActivity extends Activity {
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+                SharedPreferences preferences = getSharedPreferences(getString(R.string.login_prefs), MODE_PRIVATE);
+                preferences.edit().clear().apply();
             }
         }
 

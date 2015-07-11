@@ -185,7 +185,7 @@ public class Requests {
      * @param name     name to give new playlist
      * @param listener listener to respond to response
          */
-        public static void postPlaylist(String name, Response.Listener<JSONObject> listener) {
+    public static void postPlaylist(String name, Response.Listener<JSONObject> listener) {
             try {
                 JSONObject data = new JSONObject();
                 data.put("name", name);
@@ -209,12 +209,12 @@ public class Requests {
         new TokenRequest("playlists/" + pk + "/", null, DELETE, listener, null);
     }
 
-        /***
+    /***
          * Adds a song to a playlist
          * @param songId id of song to add
          * @param playlistId id of playlist to add to
          */
-        public static void addSongToPlaylist(final int songId, final int playlistId) {
+    public static void addSongToPlaylist(final int songId, final int playlistId) {
             try {
                 JSONObject data = new JSONObject();
                 data.put("playlist", playlistId);
@@ -242,7 +242,7 @@ public class Requests {
      * Removes a song from a playlist
          * @param linkId id of the song<-->playlist link
          */
-        public static void removeSongFromPlaylist(final int linkId) {
+    public static void removeSongFromPlaylist(final int linkId) {
             Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject jsonObject) {
@@ -292,6 +292,20 @@ public class Requests {
         } catch (JSONException e) {
                 Log.d("Json Error", e.toString());
         }
+    }
+
+    public static void setState(Response.Listener<JSONObject> listener) {
+        new TokenRequest("/users/token", null, GET, listener, null);
+    }
+
+    /**
+     * Get Spotify access code.
+     * Precondition: Authorization has already been granted to steazy
+     *
+     * @param listener listener to act on response
+     */
+    public static void getAuthToken(Response.Listener<JSONObject> listener) {
+        new TokenRequest("/users/spotifyaccess", null, GET, listener, null);
     }
 
     private static class TokenRequest {
@@ -444,5 +458,4 @@ public class Requests {
             }
         }
     }
-
 }

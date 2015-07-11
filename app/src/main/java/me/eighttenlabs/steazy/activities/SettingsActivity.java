@@ -69,8 +69,7 @@ public class SettingsActivity extends PreferenceActivity {
                                     SharedPreferences preferences = getActivity().
                                             getSharedPreferences(getString(R.string.login_prefs), MODE_PRIVATE);
                                     SharedPreferences.Editor editor = preferences.edit();
-                                    editor.putString(getString(R.string.login_username), null);
-                                    editor.putString(getString(R.string.login_password), null);
+                                    editor.clear();
                                     editor.apply();
                                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                                     startActivity(intent);

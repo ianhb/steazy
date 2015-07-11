@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -28,9 +30,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Response;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
@@ -41,11 +40,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import me.eighttenlabs.steazy.BuildConfig;
 import me.eighttenlabs.steazy.MusicService;
-import me.eighttenlabs.steazy.PlaylistAdapter;
 import me.eighttenlabs.steazy.R;
-import me.eighttenlabs.steazy.SongAdapter;
 import me.eighttenlabs.steazy.networking.Requests;
+import me.eighttenlabs.steazy.ui.PlaylistAdapter;
+import me.eighttenlabs.steazy.ui.SongAdapter;
 import me.eighttenlabs.steazy.wrappers.Playlist;
 import me.eighttenlabs.steazy.wrappers.Song;
 
@@ -56,8 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
-    public static final String SPOTIFY_CALLBACK = "steazy://callback";
+    public static final String SPOTIFY_CALLBACK = "http://steazy-dev.elasticbeanstalk.com/users/spotifycallback";
     public static final int REQUEST_CODE = 1337;
+
+    SharedPreferences preferences;
 
     ArrayList<Song> searchedSongs;
     private MusicService musicService;
@@ -74,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        preferences = getSharedPreferences(getString(R.string.login_prefs), MODE_PRIVATE);
+
         // UI setup
         ImageButton skipButton;
         ImageButton previousButton;
@@ -100,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
                     musicService.start();
                     playPauseButton.setImageResource(R.drawable.ic_action_pause);
                 }
-                togglePlay();
             }
         });
         skipButton.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +121,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Send auth request to Spotify for playback
-        requestSpotify();
+
+        buildSpotify();
+
 
         // Holds songs to display
         searchedSongs = new ArrayList<>();
@@ -149,11 +155,36 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().startService(playIntent);
     }
 
-    public void requestSpotify() {
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_CALLBACK);
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+    public void buildSpotify() {
+        Log.i("Spotify Approval", "Refresh");
+        Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                if (jsonObject.has(getString(R.string.spotify_access_token))) {
+                    try {
+                        Config playerConfig = new Config(getApplicationContext(),
+                                jsonObject.getString(getString(R.string.spotify_access_token)), SPOTIFY_CLIENT_ID);
+                        Spotify.getPlayer(playerConfig, musicService, new Player.InitializationObserver() {
+                            @Override
+                            public void onInitialized(Player player) {
+                                musicService.setPlayers(player);
+                            }
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.d("JSON Exception", e.toString());
+                    }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        throw new AssertionError("Spotify Response Doesn't Have Token");
+                    }
+                }
+            }
+        };
+        Requests.getAuthToken(listener);
     }
 
     private void setSongList() {
@@ -196,27 +227,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void songPicked(View view) {
         play(Integer.parseInt(view.getTag().toString()));
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        super.onActivityResult(requestCode, responseCode, intent);
-        getUserPlaylists();
-        if (requestCode == REQUEST_CODE) {
-            AuthenticationResponse response = AuthenticationClient.getResponse(responseCode, intent);
-            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(getApplicationContext(), response.getAccessToken(), SPOTIFY_CLIENT_ID);
-                Spotify.getPlayer(playerConfig, musicService, new Player.InitializationObserver() {
-                    @Override
-                    public void onInitialized(Player player) {
-                        musicService.setPlayers(player);
-                    }
-                    @Override
-                    public void onError(Throwable throwable) {
-                    }
-                });
-            }
-        }
     }
 
     public void onSongChanged(Song song) {

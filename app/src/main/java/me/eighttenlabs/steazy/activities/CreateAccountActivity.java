@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.android.volley.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -108,6 +111,8 @@ public class CreateAccountActivity extends Activity {
         mProgressView = findViewById(R.id.create_account_progress);
         mCreateFormView = findViewById(R.id.create_account_Form);
 
+        SharedPreferences preferences = getSharedPreferences(getString(R.string.login_prefs), MODE_PRIVATE);
+        preferences.edit().clear().apply();
     }
 
     /**
@@ -139,7 +144,7 @@ public class CreateAccountActivity extends Activity {
         }
         // Check if username passes basic validity test
         else if (!isUsernameValid(username)) {
-            mUsernameView.setText(getString(R.string.error_invalid_username));
+            mUsernameView.setError(getString(R.string.error_invalid_username));
             focusView = mUsernameView;
             cancel = true;
         }
@@ -226,8 +231,23 @@ public class CreateAccountActivity extends Activity {
         editor.putString(getString(R.string.login_username), mUsernameView.getText().toString());
         editor.putString(getString(R.string.login_password), mPasswordView.getText().toString());
         editor.apply();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    String state = jsonObject.getString("state");
+                    String url = "https://accounts.spotify.com/authorize?client_id=" + MainActivity.SPOTIFY_CLIENT_ID +
+                            "&response_type=code&scope=playlist-read-private%20playlist-read-collaborative%20streaming&redirect_uri=" + MainActivity.SPOTIFY_CALLBACK +
+                            "&state=" + state;
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                } catch (JSONException e) {
+                    Log.d("JSON Exception", e.toString());
+                }
+            }
+        };
+        Requests.setState(listener);
         super.finish();
     }
 

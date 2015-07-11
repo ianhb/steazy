@@ -262,7 +262,6 @@ public class MusicService extends Service {
             aPlayer.pause();
         }
         stopForeground(true);
-        activity.togglePlay();
     }
 
     /***

@@ -5,5 +5,8 @@
     <string name="login_username">username_key</string>
     <string name="login_password">password_key</string>
 
+    <string name="spotify_authorized">spotify_authorized</string>
+    <string name="spotify_access_token">access_token</string>
+    <string name="spotify_state">spotify_state</string>
 
 </resources>

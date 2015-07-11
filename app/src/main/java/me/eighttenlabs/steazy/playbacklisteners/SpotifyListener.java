@@ -37,7 +37,7 @@ public class SpotifyListener implements PlayerNotificationCallback, PlayerStateC
                     setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            service.activity.requestSpotify();
+                            service.activity.buildSpotify();
                         }
                     }).setNegativeButton(R.string.no, null).show();
         }

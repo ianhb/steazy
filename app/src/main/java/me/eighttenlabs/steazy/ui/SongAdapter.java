@@ -1,4 +1,4 @@
-package me.eighttenlabs.steazy;
+package me.eighttenlabs.steazy.ui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import me.eighttenlabs.steazy.R;
 import me.eighttenlabs.steazy.wrappers.Song;
 
 /**
