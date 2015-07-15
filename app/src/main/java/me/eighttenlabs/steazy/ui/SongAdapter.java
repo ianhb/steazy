@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import me.eighttenlabs.steazy.R;
 import me.eighttenlabs.steazy.wrappers.Song;
@@ -20,10 +20,10 @@ import me.eighttenlabs.steazy.wrappers.Song;
  */
 public class SongAdapter extends BaseAdapter {
 
-    private ArrayList<Song> songs;
+    private List<Song> songs;
     private LayoutInflater songInf;
 
-    public SongAdapter(Context c, ArrayList<Song> songs) {
+    public SongAdapter(Context c, List<Song> songs) {
         this.songs = songs;
         songInf = LayoutInflater.from(c);
     }

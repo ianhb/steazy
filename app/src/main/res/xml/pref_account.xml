@@ -7,6 +7,10 @@
         <Preference
             android:key="pref_logout"
             android:title="@string/logout" />
+
+        <Preference
+            android:key="pref_sync_spotify"
+            android:title="@string/sync_spotify" />
     </PreferenceCategory>
 
 </PreferenceScreen>

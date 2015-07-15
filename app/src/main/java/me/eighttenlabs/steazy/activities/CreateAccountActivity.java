@@ -237,7 +237,7 @@ public class CreateAccountActivity extends Activity {
                 try {
                     String state = jsonObject.getString("state");
                     String url = "https://accounts.spotify.com/authorize?client_id=" + MainActivity.SPOTIFY_CLIENT_ID +
-                            "&response_type=code&scope=playlist-read-private%20playlist-read-collaborative%20streaming&redirect_uri=" + MainActivity.SPOTIFY_CALLBACK +
+                            "&response_type=code&scope=playlist-read-private%20playlist-read-collaborative%20streaming&redirect_uri=" + LoginActivity.SPOTIFY_CALLBACK +
                             "&state=" + state;
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));

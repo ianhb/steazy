@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import me.eighttenlabs.steazy.R;
 import me.eighttenlabs.steazy.wrappers.Playlist;
@@ -20,10 +20,10 @@ import me.eighttenlabs.steazy.wrappers.Playlist;
  */
 public class PlaylistAdapter extends BaseAdapter {
 
-    private ArrayList<Playlist> playlists;
+    private List<Playlist> playlists;
     private LayoutInflater playlistInf;
 
-    public PlaylistAdapter(Context c, ArrayList<Playlist> playlists) {
+    public PlaylistAdapter(Context c, List<Playlist> playlists) {
         playlistInf = LayoutInflater.from(c);
         this.playlists = playlists;
     }
@@ -52,7 +52,7 @@ public class PlaylistAdapter extends BaseAdapter {
         TextView owner = (TextView) layout.findViewById(R.id.playlist_layout_owner);
 
         name.setText(playlist.getName());
-        owner.setText(playlist.getOwner());
+        owner.setText(playlist.getOwnerName());
 
         layout.setTag(position);
         return layout;

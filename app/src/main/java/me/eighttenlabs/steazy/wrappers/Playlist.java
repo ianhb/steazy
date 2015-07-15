@@ -1,13 +1,12 @@
 package me.eighttenlabs.steazy.wrappers;
 
-import android.util.Log;
-import android.util.Pair;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import me.eighttenlabs.steazy.networking.Requests;
 
@@ -18,49 +17,73 @@ import me.eighttenlabs.steazy.networking.Requests;
  */
 public class Playlist {
 
-    private static ArrayList<Playlist> playlist = new ArrayList<>();
+    // Stores the user's playlists
+    private static List<Playlist> playlist = new ArrayList<>();
+
+
     private int id;
     private String name;
-    private String owner;
-    private int ownerId;
-    private ArrayList<Pair<Song, Integer>> songPairs;
+    private String ownerName;
+    private int owner;
     private String createDate;
 
-    public Playlist(int id, String name, String owner, int ownerId, ArrayList<Pair<Song, Integer>> songs,
+    private int length;
+    private ArrayList<Song> songs;
+
+    public Playlist(int id, String name, String ownerName, int owner, ArrayList<Song> songs,
                     String createDate) {
         this.id = id;
         this.name = name;
+        this.ownerName = ownerName;
         this.owner = owner;
-        this.ownerId = ownerId;
-        this.songPairs = songs;
+        this.songs = songs;
         this.createDate = createDate;
     }
 
-    public static Playlist PlaylistFromJSON(JSONObject playlistJSON) {
-        try {
-            int id = playlistJSON.getInt("id");
-            String name = playlistJSON.getString("name");
-            String owner = playlistJSON.getString("owner_name");
-            int ownerId = playlistJSON.getInt("owner");
-            String createDate = playlistJSON.getString("date_created");
-            JSONArray songs = playlistJSON.getJSONArray("songs");
-            ArrayList<Pair<Song, Integer>> songList = new ArrayList<>();
-            for (int i = 0; i < songs.length(); i++) {
-                songList.add(new Pair<>(Song.songFromJSON(songs.getJSONObject(i).getJSONObject("song_data")),
-                        songs.getJSONObject(i).getInt("id")));
-            }
-            return new Playlist(id, name, owner, ownerId, songList, createDate);
-        } catch (JSONException e) {
-            Log.e("JSON Error", e.toString());
-            return null;
-        }
+    public Playlist(int id, String name, String ownerName, int owner, String createDate, int length) {
+        this.id = id;
+        this.name = name;
+        this.ownerName = ownerName;
+        this.owner = owner;
+        this.createDate = createDate;
+        this.length = length;
     }
 
-    public static ArrayList<Playlist> getPlaylist() {
+    public static List<Playlist> PlaylistListFromJSON(JSONArray array) throws JSONException {
+        List<Playlist> playlists = new LinkedList<>();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject playlist = array.getJSONObject(i);
+            int id = playlist.getInt("id");
+            String name = playlist.getString("name");
+            String ownerName = playlist.getString("owner_name");
+            int owner = playlist.getInt("owner");
+            String create_date = playlist.getString("date_created");
+            int length = playlist.getInt("length");
+            Playlist play = new Playlist(id, name, ownerName, owner, create_date, length);
+            playlists.add(play);
+        }
+        return playlists;
+    }
+
+    public static Playlist PlaylistFromJSON(JSONObject playlistDetail) throws JSONException {
+        int id = playlistDetail.getInt("id");
+        String name = playlistDetail.getString("name");
+        String ownerName = playlistDetail.getString("owner_name");
+        int owner = playlistDetail.getInt("owner");
+        String createDate = playlistDetail.getString("date_created");
+        JSONArray songs = playlistDetail.getJSONArray("song_details");
+        ArrayList<Song> songList = new ArrayList<>();
+        for (int i = 0; i < songs.length(); i++) {
+            songList.add(Song.songFromJSON(songs.getJSONObject(i)));
+        }
+        return new Playlist(id, name, ownerName, owner, songList, createDate);
+    }
+
+    public static List<Playlist> getPlaylist() {
         return playlist;
     }
 
-    public static void setPlaylist(ArrayList<Playlist> playlist) {
+    public static void setPlaylist(List<Playlist> playlist) {
         Playlist.playlist = playlist;
     }
 
@@ -81,36 +104,28 @@ public class Playlist {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwner() {
-        return owner;
+    public String getOwnerName() {
+        return ownerName;
     }
 
     public void deleteSong(Song song) {
-        for (Pair<Song, Integer> s : songPairs) {
-            if (song == s.first) {
-                Requests.removeSongFromPlaylist(s.second);
-            }
-        }
+        Requests.removeSongFromPlaylist(song.getId(), this.id);
     }
 
     public ArrayList<Song> getSongs() {
-        ArrayList<Song> songList = new ArrayList<>();
-        for (Pair<Song, Integer> pair : songPairs) {
-            songList.add(pair.first);
-        }
-        return songList;
+        return songs;
     }
 
     public String getCreateDate() {
         return createDate;
     }
 
+    public int getLength() {
+        return length;
+    }
+
     @Override
     public String toString() {
-        return this.name + " by " + this.getOwner();
+        return this.name + " by " + this.getOwnerName();
     }
 }

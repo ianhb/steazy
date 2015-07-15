@@ -12,6 +12,7 @@ import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 import me.eighttenlabs.steazy.R;
+import me.eighttenlabs.steazy.networking.Requests;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -80,6 +81,19 @@ public class SettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+
+            Preference syncSpotify = findPreference("pref_sync_spotify");
+            syncSpotify.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Requests.syncSpotify();
+                    new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.sync_title)).
+                            setMessage(getString(R.string.sync_content)).setPositiveButton(R.string.ok, null)
+                            .show();
+                    return true;
+                }
+            });
+
         }
 
     }

@@ -60,6 +60,7 @@ public class Requests {
     public static void setQueue(Context context) {
         QUEUE = NetworkQueue.getInstance(context);
         BASEURL = context.getString(R.string.baseUrl);
+        Log.e("Url", BASEURL);
     }
 
     public static void setToken(String token) {
@@ -158,7 +159,7 @@ public class Requests {
     public static void search(String query, String type, Response.Listener<JSONArray> listener) {
         try {
             query = URLEncoder.encode(query, "UTF-8");
-            new TokenArrayRequest("/songs/" + type + "?query=" + query,
+            new TokenArrayRequest("songs/" + type + "?query=" + query,
                     null, Requests.GET, listener, null);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -175,7 +176,7 @@ public class Requests {
      * @param listener listener to respond to server's response
      */
     public static void getPlaylists(Response.Listener<JSONArray> listener) {
-        new TokenArrayRequest("/playlists/", null, GET, listener, null);
+        new TokenArrayRequest("playlists/", null, GET, listener, null);
     }
 
     /**
@@ -186,20 +187,25 @@ public class Requests {
      * @param listener listener to respond to response
          */
     public static void postPlaylist(String name, Response.Listener<JSONObject> listener) {
-            try {
-                JSONObject data = new JSONObject();
-                data.put("name", name);
-                new TokenRequest("/playlists/", data, POST, listener, null);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-    public static void putPlaylist(int pk, String name, Response.Listener<JSONObject> listener) {
         try {
             JSONObject data = new JSONObject();
             data.put("name", name);
-            new TokenRequest("/playlists/" + pk + "/", data, PUT, listener, null);
+            new TokenRequest("playlists/", data, POST, listener, null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void getPlaylist(int pk, Response.Listener<JSONObject> listener) {
+        new TokenRequest("playlists/" + pk + "/", null, GET, listener, null);
+    }
+
+    public static void renamePlaylist(int pk, String name, Response.Listener<JSONObject> listener) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("type", "rename");
+            data.put("data", name);
+            new TokenRequest("playlists/" + pk + "/", data, PUT, listener, null);
         } catch (JSONException e) {
             Log.d("Json Error", "Unable to encode data");
         }
@@ -215,56 +221,43 @@ public class Requests {
          * @param playlistId id of playlist to add to
          */
     public static void addSongToPlaylist(final int songId, final int playlistId) {
-            try {
-                JSONObject data = new JSONObject();
-                data.put("playlist", playlistId);
-                data.put("song", songId);
-                Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if (BuildConfig.DEBUG && (response.getInt("song") != songId || response.getInt("playlist") != playlistId)) {
-                                throw new AssertionError("Response doesn't match send");
-                            }
-                        } catch (JSONException e) {
-                            Log.d("JSON Error", "Unable to parse response");
-                        }
-                    }
-                };
-                new TokenRequest("/add/", data, Requests.POST, listener, null);
-            } catch (JSONException e) {
-                Log.d("JSON Error", "Unable to add song");
-            }
-
+        try {
+            JSONObject data = new JSONObject();
+            data.put("type", "add");
+            data.put("data", songId);
+            Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.d("Song added", String.valueOf(songId));
+                }
+            };
+            new TokenRequest("playlists/" + playlistId + "/", data, Requests.PUT, listener, null);
+        } catch (JSONException e) {
+            Log.d("JSON Error", "Unable to add song");
         }
+
+    }
 
     /**
      * Removes a song from a playlist
-         * @param linkId id of the song<-->playlist link
-         */
-    public static void removeSongFromPlaylist(final int linkId) {
+     * @param songId song ID number
+     * @param playlistId playlist ID number
+     */
+    public static void removeSongFromPlaylist(final int songId, final int playlistId) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("type", "remove");
+            data.put("data", songId);
             Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
                 @Override
-                public void onResponse(JSONObject jsonObject) {
-                    if (BuildConfig.DEBUG) {
-                        try {
-                            JSONArray songs = jsonObject.getJSONArray("songs");
-                            for (int i=0;i<songs.length();i++) {
-                                if (songs.getJSONObject(i).getInt("id") == linkId) {
-                                    throw new AssertionError("Song Not deleted");
-                                }
-                            }
-                        } catch (JSONException e) {
-                            Log.d("JSON Error", "Unable to parse response");
-                        }
-                    }
+                public void onResponse(JSONObject response) {
+                    Log.d("Song removed", String.valueOf(songId));
                 }
             };
-            new TokenRequest("add/" + linkId + "/", null, DELETE, listener, null);
+            new TokenRequest("playlists/" + playlistId + "/", data, Requests.PUT, listener, null);
+        } catch (JSONException e) {
+            Log.d("JSON Error", "Unable to remove song");
         }
-
-    public static void removeSongFromPlaylist(final int linkId, Response.Listener<JSONObject> listener) {
-        new TokenRequest("add/" + linkId + "/", null, DELETE, listener, null);
     }
 
     /**
@@ -288,16 +281,19 @@ public class Requests {
         };
         try {
             final JSONObject object = new JSONObject(obj);
-            new TokenRequest("/play/", object, Requests.POST, listener, null);
+            new TokenRequest("play/", object, Requests.POST, listener, null);
         } catch (JSONException e) {
                 Log.d("Json Error", e.toString());
         }
     }
 
     public static void setState(Response.Listener<JSONObject> listener) {
-        new TokenRequest("/users/token", null, GET, listener, null);
+        new TokenRequest("users/token", null, GET, listener, null);
     }
 
+    public static void syncSpotify() {
+        new TokenRequest("playlists/spotify", null, GET, null, null);
+    }
     /**
      * Get Spotify access code.
      * Precondition: Authorization has already been granted to steazy
@@ -305,7 +301,7 @@ public class Requests {
      * @param listener listener to act on response
      */
     public static void getAuthToken(Response.Listener<JSONObject> listener) {
-        new TokenRequest("/users/spotifyaccess", null, GET, listener, null);
+        new TokenRequest("users/spotifyaccess", null, GET, listener, null);
     }
 
     private static class TokenRequest {

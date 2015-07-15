@@ -35,6 +35,8 @@ import me.eighttenlabs.steazy.networking.Requests;
  */
 public class LoginActivity extends Activity {
 
+    public static String SPOTIFY_CALLBACK;
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -49,6 +51,9 @@ public class LoginActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SPOTIFY_CALLBACK = getString(R.string.baseUrl) + "users/spotifycallback";
+
         super.onCreate(savedInstanceState);
 
         // Sets up network queue

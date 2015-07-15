@@ -39,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.eighttenlabs.steazy.BuildConfig;
 import me.eighttenlabs.steazy.MusicService;
@@ -56,12 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String SPOTIFY_CLIENT_ID = "e0fd082de90e4cd7b60bf6047f5033f0";
     public static final String SOUNDCLOUD_CLIENT_ID = "81ca87317b91e4051f6d8797e5cce358";
-    public static final String SPOTIFY_CALLBACK = "http://steazy-dev.elasticbeanstalk.com/users/spotifycallback";
-    public static final int REQUEST_CODE = 1337;
 
     SharedPreferences preferences;
 
     ArrayList<Song> searchedSongs;
+    private List<Song> playlistSongs;
     private MusicService musicService;
     private boolean musicBound;
     private Intent playIntent;
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         // Holds songs to display
         searchedSongs = new ArrayList<>();
 
-        displayingPlaylist = null;
+        notShowingPlaylist();
 
         // Sets up the playback service
         setupService();
@@ -194,7 +194,12 @@ public class MainActivity extends AppCompatActivity {
                 songPicked(view);
             }
         });
-        SongAdapter songAdapter = new SongAdapter(getApplicationContext(), searchedSongs);
+        SongAdapter songAdapter;
+        if (playlistSongs != null) {
+            songAdapter = new SongAdapter(getApplicationContext(), playlistSongs);
+        } else {
+            songAdapter = new SongAdapter(getApplicationContext(), searchedSongs);
+        }
         listView.setAdapter(songAdapter);
         registerForContextMenu(listView);
         invalidateOptionsMenu();
@@ -205,24 +210,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Playlist playlist = Playlist.getPlaylist().get(Integer.parseInt(view.getTag().toString()));
-                searchedSongs = playlist.getSongs();
-                setSongList();
-                displayingPlaylist = playlist;
+                Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            Playlist playlist1 = Playlist.PlaylistFromJSON(jsonObject);
+                            playlistSongs = playlist1.getSongs();
+                            setSongList();
+                            displayingPlaylist = playlist1;
+                        } catch (JSONException e) {
+                            Log.d("JSON Exception", e.toString());
+                        }
+                    }
+                };
+                Requests.getPlaylist(playlist.getId(), listener);
             }
         });
         PlaylistAdapter playlistAdapter = new PlaylistAdapter(getApplicationContext(), Playlist.getPlaylist());
         listView.setAdapter(playlistAdapter);
         registerForContextMenu(listView);
         invalidateOptionsMenu();
-        displayingPlaylist = null;
-    }
-
-    public void togglePlay() {
-        if (musicService.isPlaying()) {
-            playPauseButton.setImageResource(R.drawable.ic_action_pause);
-        } else {
-            playPauseButton.setImageResource(R.drawable.ic_action_play);
-        }
+        notShowingPlaylist();
     }
 
     public void songPicked(View view) {
@@ -233,6 +241,19 @@ public class MainActivity extends AppCompatActivity {
         songName.setText(song.name);
         songArtist.setText(song.artists[0]);
         playPauseButton.setImageResource(R.drawable.ic_action_pause);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (displayingPlaylist != null) {
+            notShowingPlaylist();
+            setPlaylistList();
+        } else if (listView.getAdapter() instanceof PlaylistAdapter) {
+            notShowingPlaylist();
+            setSongList();
+        } else {
+            this.moveTaskToBack(true);
+        }
     }
 
     @Override
@@ -417,15 +438,13 @@ public class MainActivity extends AppCompatActivity {
         Requests.getPlaylists(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
-                ArrayList<Playlist> playlists = new ArrayList<>();
                 try {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        playlists.add(Playlist.PlaylistFromJSON(jsonArray.getJSONObject(i)));
-                    }
+                    Playlist.setPlaylist(Playlist.PlaylistListFromJSON(jsonArray));
+                    setPlaylistList();
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.d("JSON Exception", e.toString());
                 }
-                Playlist.setPlaylist(playlists);
+
             }
         });
     }
@@ -444,7 +463,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
-                displayingPlaylist = null;
+                notShowingPlaylist();
             }
         });
     }
@@ -463,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
-                displayingPlaylist = null;
+                notShowingPlaylist();
             }
         });
     }
@@ -487,16 +506,17 @@ public class MainActivity extends AppCompatActivity {
             getUserPlaylists();
             return;
         }
-        final ArrayList<Playlist> playlists = Playlist.getPlaylist();
-        String[] playlistNames = new String[playlists.size()];
-        for (int i=0;i<playlists.size();i++) {
-            playlistNames[i] = playlists.get(i).getName();
+        final Playlist[] playlists = Playlist.getPlaylist().toArray(
+                new Playlist[Playlist.getPlaylist().size()]);
+        String[] playlistNames = new String[playlists.length];
+        for (int i = 0; i < playlists.length; i++) {
+            playlistNames[i] = playlists[i].getName();
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select a Playlist").setItems(playlistNames, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Requests.addSongToPlaylist(song.getId(), playlists.get(which).getId());
+                Requests.addSongToPlaylist(song.getId(), playlists[which].getId());
             }
         });
         AlertDialog dialog = builder.create();
@@ -518,9 +538,7 @@ public class MainActivity extends AppCompatActivity {
                 Requests.postPlaylist(v.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        ArrayList<Playlist> current = Playlist.getPlaylist();
-                        current.add(Playlist.PlaylistFromJSON(jsonObject));
-                        Playlist.setPlaylist(current);
+                        getUserPlaylists();
                         setPlaylistList();
                     }
                 });
@@ -540,9 +558,7 @@ public class MainActivity extends AppCompatActivity {
                 Requests.postPlaylist(nameBox.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        ArrayList<Playlist> current = Playlist.getPlaylist();
-                        current.add(Playlist.PlaylistFromJSON(jsonObject));
-                        Playlist.setPlaylist(current);
+                        getUserPlaylists();
                         setPlaylistList();
                     }
                 });
@@ -566,10 +582,10 @@ public class MainActivity extends AppCompatActivity {
         nameBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                Requests.putPlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                Requests.renamePlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        playlist.setName(nameBox.getText().toString());
+                        getUserPlaylists();
                         setPlaylistList();
                     }
                 });
@@ -586,10 +602,10 @@ public class MainActivity extends AppCompatActivity {
         renameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Requests.putPlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
+                Requests.renamePlaylist(playlist.getId(), nameBox.getText().toString(), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        playlist.setName(nameBox.getText().toString());
+                        getUserPlaylists();
                         setPlaylistList();
                     }
                 });
@@ -613,4 +629,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).setNegativeButton(R.string.no, null).show();
     }
+
+    private void notShowingPlaylist() {
+        displayingPlaylist = null;
+        playlistSongs = null;
+    }
+
 }

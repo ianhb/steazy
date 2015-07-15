@@ -9,5 +9,10 @@
     <string name="logout">Logout</string>
     <string name="logout_title">Logout of Steazy?</string>
 
+    <string name="sync_spotify">Sync Spotify Playlists</string>
+    <string name="sync_title">Syncing Spotify Playlists</string>
+    <string name="sync_content">Hang on… We\'re adding your Spotify playlists to Steazy</string>
+    <string name="ok">OK</string>
+
 
 </resources>
