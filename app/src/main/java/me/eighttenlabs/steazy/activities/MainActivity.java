@@ -1,12 +1,14 @@
 package me.eighttenlabs.steazy.activities;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.eighttenlabs.steazy.BuildConfig;
 import me.eighttenlabs.steazy.MusicService;
@@ -263,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        new UserLoginTask().execute((Void) null);
         super.onResume();
     }
 
@@ -450,6 +455,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchSongs(String query) {
+        final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+        dialog.setTitle(R.string.searching_progress_title);
+        dialog.show();
         Requests.search(query, Requests.SEARCH_ALL, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -464,6 +472,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.searchedSongs = songs1;
                 setSongList();
                 notShowingPlaylist();
+                dialog.dismiss();
             }
         });
     }
@@ -492,7 +501,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void play(int pos) {
-        musicService.setSongs(searchedSongs);
+        if (playlistSongs != null) {
+            musicService.setSongs(new ArrayList<>(playlistSongs));
+        } else {
+            musicService.setSongs(searchedSongs);
+        }
         musicService.setQueuePosition(pos);
         musicService.playSong();
     }
@@ -635,4 +648,40 @@ public class MainActivity extends AppCompatActivity {
         playlistSongs = null;
     }
 
+    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (!success) {
+                preferences.edit().remove(getString(R.string.login_username)).
+                        remove(getString(R.string.login_password)).apply();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                MainActivity.this.finish();
+            }
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            String mUsername = preferences.getString(getString(R.string.login_username), null);
+            String mPassword = preferences.getString(getString(R.string.login_password), null);
+            Map<String, String> data = new HashMap<>();
+            data.put("username", mUsername);
+            data.put("password", mPassword);
+
+            String response = Requests.genericPostRequest(data, Requests.BASEURL + "login/");
+
+            try {
+                JSONObject responseJson = new JSONObject(response);
+                if (responseJson.has("token")) {
+                    Requests.setToken(responseJson.getString("token"));
+                    Log.d("Login", "Token Received");
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (JSONException e) {
+                return false;
+            }
+        }
+    }
 }

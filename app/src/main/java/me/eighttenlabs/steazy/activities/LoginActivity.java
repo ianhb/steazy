@@ -102,9 +102,9 @@ public class LoginActivity extends Activity {
         String password = prefs.getString(getString(R.string.login_password), null);
 
         if (username != null && password != null) {
-            mUsernameView.setText(username);
-            mPasswordView.setText(password);
-            attemptLogin();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -205,22 +205,6 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Saves credentials to shared preferences and starts main activity
-     */
-    @Override
-    public void finish() {
-        if (!prefs.contains(getString(R.string.login_username)) ||
-                !prefs.contains(getString(R.string.login_password))) {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(getString(R.string.login_username), mUsernameView.getText().toString());
-            editor.putString(getString(R.string.login_password), mPasswordView.getText().toString());
-            editor.apply();
-        }
-        startActivity(new Intent(this, MainActivity.class));
-        super.finish();
-    }
-
-    /**
      * Represents an asynchronous login task used to authenticate
      * the user.
      */
@@ -260,6 +244,14 @@ public class LoginActivity extends Activity {
             showProgress(false);
 
             if (success) {
+                if (!prefs.contains(getString(R.string.login_username)) ||
+                        !prefs.contains(getString(R.string.login_password))) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(getString(R.string.login_username), mUsernameView.getText().toString());
+                    editor.putString(getString(R.string.login_password), mPasswordView.getText().toString());
+                    editor.apply();
+                }
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

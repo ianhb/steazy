@@ -16,8 +16,6 @@ android {
         versionName "1.1.0"
     }
 
-
-
     buildTypes {
         local {
             def host = InetAddress.localHost.getCanonicalHostName()
@@ -47,6 +45,7 @@ android {
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 

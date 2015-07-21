@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
@@ -348,6 +349,7 @@ public class Requests {
                     return params;
                 }
             };
+            request.setRetryPolicy(new DefaultRetryPolicy(10000, 2, 2));
             QUEUE.addtToRequestQueue(request);
         }
     }

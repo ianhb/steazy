@@ -20,6 +20,8 @@
     <string name="lost_spotify_title">Spotify Permission Lost</string>
     <string name="lost_spotify_content">This account is playing elsewhere, request permission to play here?</string>
 
+    <string name="searching_progress_title">Searching for Songs</string>
+
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
