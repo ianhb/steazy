@@ -104,10 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (musicService.isPlaying()) {
                     musicService.pause();
-                    playPauseButton.setImageResource(R.drawable.ic_action_play);
                 } else {
                     musicService.start();
-                    playPauseButton.setImageResource(R.drawable.ic_action_pause);
                 }
             }
         });
@@ -237,6 +235,10 @@ public class MainActivity extends AppCompatActivity {
         notShowingPlaylist();
     }
 
+    public ImageButton getPlayPauseButton() {
+        return playPauseButton;
+    }
+
     public void songPicked(View view) {
         play(Integer.parseInt(view.getTag().toString()));
     }
@@ -244,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
     public void onSongChanged(Song song) {
         songName.setText(song.name);
         songArtist.setText(song.artists[0]);
-        playPauseButton.setImageResource(R.drawable.ic_action_pause);
     }
 
     @Override
@@ -392,7 +393,9 @@ public class MainActivity extends AppCompatActivity {
         int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
         Song song = null;
         Playlist playlist = null;
-        if (listView.getAdapter() instanceof SongAdapter) {
+        if (playlistSongs != null) {
+            song = playlistSongs.get(position);
+        } else if (listView.getAdapter() instanceof SongAdapter) {
             song = searchedSongs.get(position);
         } else if (listView.getAdapter() instanceof PlaylistAdapter) {
             playlist = Playlist.getPlaylist().get(position);
@@ -511,7 +514,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void queue(Song song) {
-        musicService.queue.add(musicService.getQueuePosition() + 1, song);
+        if (musicService.getQueue().size() == 0) {
+            musicService.getQueue().add(song);
+        } else {
+            musicService.getQueue().add(musicService.getQueuePosition() + 1, song);
+        }
     }
 
     private void addSongDialog(final Song song){

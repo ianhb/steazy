@@ -38,11 +38,9 @@ public class MusicService extends Service {
 
     private final IBinder musicBind = new MusicBinder();
 
-    // Used to tell Spotify that the user ended playback
-    public boolean userSkip;
     // Used to allow service to update UI
     public MainActivity activity;
-    public ArrayList<Song> queue;
+    private ArrayList<Song> queue;
     private MediaPlayer aPlayer;
     private Player sPlayer;
     private int queuePosition;
@@ -62,7 +60,6 @@ public class MusicService extends Service {
         super.onCreate();
         queuePosition = 0;
         queue = new ArrayList<>();
-        userSkip = false;
         mediaPlayerListener = new MediaPlayerListener(this);
         spotifyListener = new SpotifyListener(this);
         aPlayer = new MediaPlayer();
@@ -95,6 +92,7 @@ public class MusicService extends Service {
         }
         activity.onSongChanged(currentSong);
         makeNotification();
+        activity.getPlayPauseButton().setImageResource(R.drawable.ic_action_pause);
         Requests.play(currentSong);
     }
 
@@ -262,6 +260,7 @@ public class MusicService extends Service {
             aPlayer.pause();
         }
         stopForeground(true);
+        activity.getPlayPauseButton().setImageResource(R.drawable.ic_action_play);
     }
 
     /***
@@ -295,6 +294,11 @@ public class MusicService extends Service {
      * Start playback of current song
      */
     public void start() {
+        if (currentSong == null && queue != null && queue.size() > 0) {
+            currentSong = queue.get(0);
+        } else if (currentSong == null && (queue == null || queue.size() == 0)) {
+            return;
+        }
         switch (currentSong.source) {
             case SPOTIFY:
                 sPlayer.resume();
@@ -305,6 +309,7 @@ public class MusicService extends Service {
         }
         pauseSystemPlayback();
         makeNotification();
+        activity.getPlayPauseButton().setImageResource(R.drawable.ic_action_pause);
     }
 
     /***
@@ -315,8 +320,6 @@ public class MusicService extends Service {
         if (queuePosition < 0) {
             queuePosition = queue.size() - 1;
         }
-        // Used to make sure Spotify recognizes the song hasn't ended
-        userSkip = true;
         playSong();
     }
 
@@ -328,8 +331,6 @@ public class MusicService extends Service {
         if (queuePosition >= queue.size()) {
             queuePosition = 0;
         }
-        // Used to make sure Spotify recognizes the song hasn't ended
-        userSkip = true;
         playSong();
     }
 
