@@ -188,6 +188,7 @@ public class MusicService extends Service {
      */
     public void setPlayers(Player player) {
         sPlayer = player;
+        sPlayer.addConnectionStateCallback(spotifyListener);
         sPlayer.addPlayerNotificationCallback(spotifyListener);
         sPlayer.getPlayerState(spotifyListener);
     }

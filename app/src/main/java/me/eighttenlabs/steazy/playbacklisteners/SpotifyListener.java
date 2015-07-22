@@ -3,6 +3,7 @@ package me.eighttenlabs.steazy.playbacklisteners;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
@@ -15,7 +16,7 @@ import me.eighttenlabs.steazy.R;
  * <p/>
  * Created by Ian on 6/20/2015.
  */
-public class SpotifyListener implements PlayerNotificationCallback, PlayerStateCallback {
+public class SpotifyListener implements PlayerNotificationCallback, PlayerStateCallback, ConnectionStateCallback {
 
     private MusicService service;
     private PlayerState state;
@@ -45,12 +46,31 @@ public class SpotifyListener implements PlayerNotificationCallback, PlayerStateC
 
     @Override
     public void onPlaybackError(ErrorType errorType, String s) {
-
     }
 
     @Override
     public void onPlayerState(PlayerState playerState) {
         state = playerState;
+    }
+
+    @Override
+    public void onLoggedIn() {
+    }
+
+    @Override
+    public void onLoggedOut() {
+    }
+
+    @Override
+    public void onLoginFailed(Throwable throwable) {
+    }
+
+    @Override
+    public void onTemporaryError() {
+    }
+
+    @Override
+    public void onConnectionMessage(String s) {
     }
 
     public int getPosition() {
